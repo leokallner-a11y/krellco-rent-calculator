@@ -254,18 +254,24 @@ select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white
     <!-- MARKET CONTEXT CHECK -->
     <div class="panel-card">
       <div class="card-header">
-        <span class="card-title">Market context check</span>
-        <span class="card-sub">ChatGPT prompt — pre-filled for this unit</span>
+        <span class="card-title">Live rent cheat sheet</span>
+        <span class="card-sub" id="cs-context"></span>
       </div>
       <div class="card-body" style="padding:8px;">
-        <div class="gpt-section">
-          <div class="gpt-label">Paste into ChatGPT with Browse enabled</div>
-          <div id="cs-prompt-box" class="gpt-prompt"></div>
-          <div class="gpt-btns">
-            <button class="gpt-open" onclick="openCheatSheetGPT()">Open ChatGPT &#8599;</button>
-            <button class="gpt-copy" id="cs-copy-btn" onclick="copyCheatSheetPrompt()">Copy</button>
-          </div>
+        <div id="cs-idle">
+          <button onclick="fetchCheatSheet()" style="width:100%;background:#10a37f;color:white;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#128269; Fetch live listings</button>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:6px;">Searches Craigslist, Kijiji & liv.rent &middot; Real listings &middot; Direct links &middot; ~15 seconds</div>
         </div>
+        <div id="cs-loading" style="display:none;text-align:center;padding:20px 0;">
+          <div style="font-size:13px;color:var(--muted);">Searching for comparable listings<span id="cs-dots">...</span></div>
+        </div>
+        <div id="cs-result" style="display:none;">
+          <div id="cs-table-wrap" style="overflow-x:auto;margin-bottom:10px;"></div>
+          <div id="cs-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;"></div>
+          <button onclick="fetchCheatSheet()" style="width:100%;background:none;border:1.5px solid #10a37f;color:#10a37f;border-radius:7px;padding:7px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">&#8635; Refresh</button>
+        </div>
+        <div id="cs-error" style="display:none;font-size:11px;color:var(--red);padding:8px;background:var(--lt-red);border-radius:6px;margin-top:6px;"></div>
+
       </div>
     </div>
 
@@ -521,6 +527,113 @@ function renderMarketTable(){
     tbody+='</tr>';
   });
   document.getElementById('cs-table-area').innerHTML='<table class="mkt-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
+}
+
+
+var WORKER_URL = 'https://krellcorentcalculator.leokallner.workers.dev';
+
+async function fetchCheatSheet(){
+  if(!_bk||!_u)return;
+  var b=BLD[_bk];
+  var bName=BN[_bk]||_bk;
+  var bedsLabel=_u.beds==='studio'?'studio':_u.beds+'-bedroom';
+  var area=b.area;
+  var loVal=document.getElementById('mkt-low').value;
+  var hiVal=document.getElementById('mkt-high').value;
+  var priceFilter;
+  if(loVal&&hiVal){priceFilter='$'+loVal+' to $'+hiVal+' per month';}
+  else if(loVal){priceFilter='minimum $'+loVal+' per month';}
+  else if(hiVal){priceFilter='maximum $'+hiVal+' per month';}
+  else{var mr=b.mr[_u.beds]||b.mr['1'];priceFilter='$'+mr[0]+' to $'+mr[1]+' per month';}
+
+  document.getElementById('cs-idle').style.display='none';
+  document.getElementById('cs-loading').style.display='block';
+  document.getElementById('cs-result').style.display='none';
+  document.getElementById('cs-error').style.display='none';
+
+  var dotsEl=document.getElementById('cs-dots');
+  var dotsInt=setInterval(function(){dotsEl.textContent=dotsEl.textContent.length>=3?'':dotsEl.textContent+'.';},500);
+
+  var systemPrompt='You are a rental market research assistant for a Vancouver property manager. Use your web search tool to find REAL, CURRENTLY ACTIVE rental listings. Return ONLY a JSON object with no markdown, no explanation. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"710","notes":"...","link":"...","source":"craigslist"}],"fetched_at":"June 2026"}. For link use the actual direct listing URL. For sqft use string or "--". Include 3-6 listings. Only older purpose-built apartments -- no basement suites, no new luxury condos, no shared housing.';
+
+  var userPrompt='Find current '+bedsLabel+' apartment rentals in '+area+' priced '+priceFilter+'. Search Craigslist Vancouver, Kijiji, and liv.rent. Return only currently active listings with direct listing URLs.';
+
+  try{
+    var resp=await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:systemPrompt,
+        messages:[{role:'user',content:userPrompt}]
+      })
+    });
+    var data=await resp.json();
+    clearInterval(dotsInt);
+    var text=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var clean=text.replace(/```json|```/g,'').trim();
+    var parsed=JSON.parse(clean);
+    renderCheatSheet(parsed, loVal, hiVal, b.mr[_u.beds]||b.mr['1']);
+  }catch(e){
+    clearInterval(dotsInt);
+    document.getElementById('cs-loading').style.display='none';
+    document.getElementById('cs-error').style.display='block';
+    document.getElementById('cs-error').textContent='Could not fetch listings — try again or use the ChatGPT prompt below. ('+e.message+')';
+    document.getElementById('cs-idle').style.display='block';
+  }
+}
+
+function renderCheatSheet(data, loVal, hiVal, mr){
+  document.getElementById('cs-loading').style.display='none';
+  var listings=data.listings||[];
+  if(!listings.length){
+    document.getElementById('cs-error').style.display='block';
+    document.getElementById('cs-error').textContent='No listings found. Try adjusting your price range or use the ChatGPT prompt below.';
+    document.getElementById('cs-idle').style.display='block';
+    return;
+  }
+  var lo=parseFloat(loVal)||mr[0];
+  var hi=parseFloat(hiVal)||mr[1];
+  var rows=listings.map(function(l){
+    var badge,bstyle;
+    if(l.rent<lo){badge='Below range';bstyle='background:#0d3d5e;color:#7ec8e3;';}
+    else if(l.rent>hi){badge='Above range';bstyle='background:#3d2a00;color:#f5c842;';}
+    else{badge='In range';bstyle='background:#0d3d25;color:#4cd98a;';}
+    return '<tr style="border-bottom:1px solid var(--border);">'
+      +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.address+'</td>'
+      +'<td style="padding:7px 6px;font-size:11px;font-weight:700;color:var(--char);">$'+l.rent.toLocaleString()+'</td>'
+      +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.beds+'</td>'
+      +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.sqft+'</td>'
+      +'<td style="padding:7px 6px;"><span style="'+bstyle+'font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;">'+badge+'</span></td>'
+      +'<td style="padding:7px 6px;font-size:11px;color:var(--muted);">'+l.notes+'</td>'
+      +'<td style="padding:7px 6px;"><a href="'+l.link+'" target="_blank" style="color:#10a37f;font-size:11px;text-decoration:none;font-weight:600;">'+l.source+' &#8599;</a></td>'
+      +'</tr>';
+  }).join('');
+  var table='<table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr style="border-bottom:2px solid var(--border);">'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Address</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Rent</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Beds</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Sq ft</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">vs range</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Notes</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Link</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>';
+  document.getElementById('cs-table-wrap').innerHTML=table;
+  var rents=listings.map(function(l){return l.rent;});
+  var mlo=Math.min.apply(null,rents);
+  var mhi=Math.max.apply(null,rents);
+  var avg=Math.round(rents.reduce(function(a,b){return a+b;},0)/rents.length);
+  document.getElementById('cs-stats').innerHTML=[
+    {label:'Market low',val:'$'+mlo.toLocaleString()},
+    {label:'Market high',val:'$'+mhi.toLocaleString()},
+    {label:'Average',val:'$'+avg.toLocaleString()}
+  ].map(function(s){
+    return '<div style="background:var(--lt2);border-radius:6px;padding:8px 10px;border:1px solid var(--border);">'
+      +'<div style="font-size:10px;color:var(--muted);margin-bottom:2px;">'+s.label+'</div>'
+      +'<div style="font-size:15px;font-weight:700;color:var(--navy);">'+s.val+'</div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('cs-result').style.display='block';
 }
 
 function buildCSPrompt(){
