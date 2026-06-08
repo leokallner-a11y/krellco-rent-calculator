@@ -400,7 +400,6 @@ function loadUnit(){
   document.getElementById('hist-unit-lbl').textContent=bn+' - Unit '+u;
   seedDemoHistory();
   loadUHist(bk,u);
-  renderMarketTable();
   buildCSPrompt();
 }
 
@@ -516,7 +515,7 @@ function renderMarketTable(){
     });
     tbody+='</tr>';
   });
-  document.getElementById('cs-table-area').innerHTML='<table class="mkt-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
+  var ta=document.getElementById('cs-table-area');if(ta)ta.innerHTML='<table class="mkt-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
 }
 
 
