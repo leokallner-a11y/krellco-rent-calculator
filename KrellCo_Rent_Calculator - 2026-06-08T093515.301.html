@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KrellCo Rent Pricing</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--navy:#1a4f8a;--mid:#2d6fc4;--light:#a8cce8;--lt2:#eef5fb;--bg:#e2e9f2;--border:#dce6f0;--char:#1e2d3d;--muted:#6b7c93;--green:#1a7a40;--lt-green:#edf7f1;--amber:#7a5a1a;--lt-amber:#fdf8ee;--red:#8a1a1a;--lt-red:#fdf2f2;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;color:var(--char);}
+
+/* HEADER */
+.topbar{background:var(--navy);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-logo{color:white;font-size:15px;font-weight:700;letter-spacing:-0.2px;}
+.topbar-tag{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:10px;font-weight:600;letter-spacing:0.6px;padding:3px 9px;border-radius:4px;text-transform:uppercase;}
+
+/* LAYOUT */
+.dashboard{display:grid;grid-template-columns:1fr 1fr 1fr;min-height:calc(100vh - 44px);}
+
+/* LEFT PANEL */
+.left-panel{background:white;border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:16px;}
+.panel-section{display:flex;flex-direction:column;gap:8px;}
+.panel-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+select,input[type=text],input[type=number],textarea{border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--char);background:var(--lt2);outline:none;width:100%;}
+select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white;}
+.load-btn{width:100%;background:var(--mid);color:white;border:none;border-radius:7px;padding:10px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.load-btn:hover{background:var(--navy);}
+.unit-info-box{background:var(--lt2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);}
+.unit-info-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.ui-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid var(--border);}
+.ui-row:last-child{border-bottom:none;}
+.ui-lbl{color:var(--muted);}
+.ui-val{font-weight:600;color:var(--char);}
+.ui-val.yes{color:var(--green);}
+.ui-val.no{color:var(--muted);}
+.ph-note{background:var(--lt-amber);border-radius:6px;padding:7px 10px;font-size:10px;color:var(--amber);border-left:3px solid var(--amber);line-height:1.4;}
+.divider{height:1px;background:var(--border);margin:4px 0;}
+
+/* CONDITION TOGGLES */
+.trow{display:flex;justify-content:space-between;align-items:center;background:var(--lt2);border-radius:6px;padding:7px 10px;border:1px solid var(--border);}
+.tlabel{font-size:11px;font-weight:600;}
+.tgroup{display:flex;border-radius:5px;overflow:hidden;border:1px solid var(--border);}
+.tbtn{padding:3px 10px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;background:white;cursor:pointer;color:var(--muted);}
+.tbtn:first-child{border-right:1px solid var(--border);}
+.tbtn.yes{background:var(--green);color:white;}
+.tbtn.no{background:var(--lt2);color:var(--muted);}
+.amt-row{padding:4px 2px;}
+.amt-row label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;}
+.amt-inner{display:flex;align-items:center;gap:6px;}
+.amt-sign{font-size:14px;font-weight:700;}
+.amt-inner input{width:80px;}
+.calc-btn{width:100%;background:var(--navy);color:white;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px;}
+.calc-btn:hover{background:var(--mid);}
+.save-unit-btn{width:100%;background:var(--lt-green);color:var(--green);border:1.5px solid var(--green);border-radius:7px;padding:8px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+/* RIGHT PANEL */
+.right-panel{padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+
+/* RESULT BOX */
+.result-box{background:var(--navy);border-radius:12px;padding:20px 22px;position:relative;}
+.result-label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;}
+.result-price{font-size:44px;font-weight:700;color:white;line-height:1;}
+.result-range{font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;}
+.result-season{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.result-copy{position:absolute;top:16px;right:16px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:5px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.breakdown-inline{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.12);display:flex;gap:20px;flex-wrap:wrap;}
+.bitem{font-size:11px;color:rgba(255,255,255,0.55);}
+.bitem span{color:white;font-weight:600;margin-left:4px;}
+.bitem span.neg{color:#ff8080;}
+.bitem span.pos{color:#80ffb0;}
+
+/* BOTTOM GRID */
+.bottom-grid{display:flex;flex-direction:column;gap:14px;}
+
+/* CARDS */
+.panel-card{background:white;border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+.card-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.4px;}
+.card-sub{font-size:10px;color:var(--muted);}
+.card-body{padding:12px 14px;}
+
+/* MARKET TABLE */
+.mkt-table{width:100%;border-collapse:collapse;font-size:11px;}
+.mkt-table th{text-align:left;padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);}
+.mkt-table th:not(:first-child){text-align:right;}
+.mkt-table td{padding:6px 6px;border-bottom:1px solid var(--border);color:var(--char);}
+.mkt-table td:not(:first-child){text-align:right;}
+.mkt-table tr:last-child td{border-bottom:none;}
+.mkt-table tr.active-row td{background:var(--lt2);font-weight:700;color:var(--navy);}
+.mkt-table td.active-col{color:var(--navy);font-weight:700;}
+
+/* PLATFORM LINKS */
+.slink{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);text-decoration:none;color:var(--char);font-size:11px;font-weight:600;margin-bottom:5px;}
+.slink:last-of-type{margin-bottom:0;}
+.slink:hover{border-color:var(--mid);background:var(--lt2);}
+.slink-name{min-width:60px;}
+.slink-hint{flex:1;font-size:10px;color:var(--muted);font-weight:400;}
+.slink-hint{flex:1;font-size:10px;color:var(--muted);font-weight:400;}
+.slink-arr{color:var(--mid);font-size:13px;}
+.cl{border-left:3px solid #cc4400;}
+.kj{border-left:3px solid #3a3a9a;}
+.fb{border-left:3px solid #1877f2;}
+.lv{border-left:3px solid #e84040;}
+
+/* CHATGPT SECTION */
+.gpt-section{background:#f5f7fa;border-radius:8px;padding:12px 14px;margin-top:8px;border:1px solid var(--border);}
+.gpt-label{font-size:10px;font-weight:700;color:#10a37f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;}
+.gpt-prompt{background:#ffffff;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:10px;color:#444;line-height:1.6;font-family:monospace;margin-bottom:8px;white-space:pre-wrap;max-height:140px;overflow-y:auto;}
+.gpt-btns{display:flex;gap:6px;}
+.gpt-open{flex:1;background:#10a37f;color:white;border:none;border-radius:6px;padding:7px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.gpt-copy{background:none;border:1px solid #10a37f;color:#10a37f;border-radius:6px;padding:7px 12px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+/* PRICE RANGE INPUTS */
+.price-range-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.mid-display{font-size:11px;font-weight:600;color:var(--navy);background:var(--lt2);border-radius:5px;padding:6px 10px;display:none;}
+.fb-addr-row{background:#f0f4ff;border-radius:6px;padding:7px 10px;font-size:10px;color:var(--muted);display:none;align-items:center;justify-content:space-between;gap:6px;margin-top:4px;}
+
+/* HISTORY */
+.hist-empty{font-size:11px;color:var(--muted);padding:10px 14px;font-style:italic;}
+.mem-entry{padding:9px 14px;border-bottom:1px solid var(--border);}
+.mem-entry:last-child{border-bottom:none;}
+.mem-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+.mem-name{font-size:11px;font-weight:700;color:var(--navy);}
+.mem-price{font-size:11px;font-weight:700;color:var(--green);}
+.mem-meta{font-size:10px;color:var(--muted);}
+.mem-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:10px;opacity:0.5;}
+.mem-del:hover{opacity:1;}
+
+/* SAVE BOX */
+.save-section{background:var(--lt-green);border-radius:8px;padding:12px 14px;border-left:3px solid var(--green);}
+.save-title{font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.save-text{font-size:11px;color:var(--char);line-height:1.5;margin-bottom:8px;}
+.save-open-btn{font-size:11px;font-weight:700;color:var(--green);background:white;border:1.5px solid var(--green);border-radius:5px;padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.save-form{display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(26,122,64,0.2);}
+.save-form.open{display:flex;}
+.save-form input,.save-form textarea{border:1px solid rgba(26,122,64,0.3);border-radius:5px;padding:7px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--char);background:white;outline:none;width:100%;}
+.save-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.save-confirm{flex:1;background:var(--green);color:white;border:none;border-radius:5px;padding:8px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.save-cancel{background:none;border:1px solid rgba(26,122,64,0.3);border-radius:5px;padding:8px 12px;font-size:11px;font-weight:600;color:var(--green);font-family:'DM Sans',sans-serif;cursor:pointer;}
+.save-actions{display:flex;gap:6px;}
+
+/* EMPTY STATE */
+.empty-state{color:var(--muted);font-size:12px;font-style:italic;padding:20px;text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">KrellCo Rent Pricing</span>
+  <span class="topbar-tag">Internal</span>
+</div>
+
+<div class="dashboard">
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div style="font-size:13px;font-weight:700;color:var(--navy);padding-bottom:10px;border-bottom:1px solid var(--border);">&#9312; Unit Details</div>
+
+  <div class="panel-section">
+    <div class="panel-label">Select unit</div>
+    <select id="sel-building">
+      <option value="">Choose building...</option>
+      <option value="arkay">Arkay — Marpole</option>
+      <option value="fleetwood">Fleetwood — Marpole</option>
+      <option value="malabar">Malabar — Marpole</option>
+      <option value="fairmont">Fairmont — South Granville</option>
+      <option value="kincaid">Kincaid — Burnaby</option>
+      <option value="marilyn1">Marilyn Manor — New West</option>
+      <option value="marilyn2">Marilyn Manor II — New West</option>
+      <option value="marilyn3">Marilyn Manor III — New West</option>
+      <option value="coronation">Coronation Court — New West</option>
+      <option value="marob">Marob — New West</option>
+    </select>
+    <input type="text" id="sel-unit" placeholder="Unit # e.g. 205">
+    <button class="load-btn" onclick="loadUnit()">Load Unit</button>
+  </div>
+
+  <div id="unit-info-section" style="display:none;">
+    <div class="unit-info-box">
+      <div class="unit-info-title" id="info-title">-</div>
+      <div class="ui-row"><span class="ui-lbl">Bedrooms</span><span class="ui-val" id="d-beds">-</span></div>
+      <div class="ui-row"><span class="ui-lbl">Floor</span><span class="ui-val" id="d-floor">-</span></div>
+      <div class="ui-row"><span class="ui-lbl">Sq Ft</span><span class="ui-val" id="d-sqft">-</span></div>
+      <div class="ui-row"><span class="ui-lbl">Kitchen updated</span><span class="ui-val" id="d-kitchen">-</span></div>
+      <div class="ui-row"><span class="ui-lbl">Bathroom updated</span><span class="ui-val" id="d-bath">-</span></div>
+      <div class="ui-row" id="d-balcony-wrap" style="display:none;"><span class="ui-lbl">Balcony</span><span class="ui-val" id="d-balcony">-</span></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="panel-label">Your price range estimate ($)</div>
+    <div class="price-range-row">
+      <input type="number" id="mkt-low" placeholder="Low" oninput="updateLinks();buildCSPrompt()">
+      <input type="number" id="mkt-high" placeholder="High" oninput="updateLinks();buildCSPrompt()">
+    </div>
+
+    <div class="divider"></div>
+    <div class="panel-label">Browse live listings</div>
+    <a id="cl-link" href="#" target="_blank" class="slink cl"><span>&#128269;</span><span class="slink-name">Craigslist</span><span class="slink-hint">Neighbourhood, beds & price pre-set · Nothing extra needed</span><span class="slink-arr">&#8599;</span></a>
+    <a id="kj-link" href="#" target="_blank" class="slink kj"><span>&#128269;</span><span class="slink-name">Kijiji</span><span class="slink-hint">Set Category = Long Term Rentals, neighbourhood, beds & price manually</span><span class="slink-arr">&#8599;</span></a>
+    <a id="lv-link" href="#" target="_blank" class="slink lv"><span>&#128269;</span><span class="slink-name">liv.rent</span><span class="slink-hint">Neighbourhood & beds pre-set · Set price range manually</span><span class="slink-arr">&#8599;</span></a>
+    <a id="fb-link" href="https://www.facebook.com/marketplace/vancouver/propertiesrentals" target="_blank" class="slink fb"><span>&#128269;</span><span class="slink-name">Marketplace</span><span class="slink-hint">Set location to neighbourhood, reduce radius & set price manually</span><span class="slink-arr">&#8599;</span></a>
+  </div>
+
+  <div id="condition-section" style="display:none;">
+    <div class="divider"></div>
+    <div class="panel-label">Unit condition</div>
+    <div class="trow"><span class="tlabel">Updated kitchen?</span><div class="tgroup"><button class="tbtn" id="t-k-yes" onclick="setT('k','yes')">Yes</button><button class="tbtn no" id="t-k-no" onclick="setT('k','no')">No</button></div></div>
+    <div id="kitchen-amt-row" style="display:none;" class="amt-row">
+      <label>Add to rent ($)</label>
+      <div class="amt-inner"><span class="amt-sign" style="color:var(--green);">+$</span><input type="number" id="kitchen-amt" min="0" placeholder="e.g. 75"></div>
+    </div>
+    <div class="trow"><span class="tlabel">Updated bathroom?</span><div class="tgroup"><button class="tbtn" id="t-b-yes" onclick="setT('b','yes')">Yes</button><button class="tbtn no" id="t-b-no" onclick="setT('b','no')">No</button></div></div>
+    <div id="bath-amt-row" style="display:none;" class="amt-row">
+      <label>Add to rent ($)</label>
+      <div class="amt-inner"><span class="amt-sign" style="color:var(--green);">+$</span><input type="number" id="bath-amt" min="0" placeholder="e.g. 75"></div>
+    </div>
+    <div class="trow" id="t-bal-row" style="display:none;"><span class="tlabel">Balcony?</span><div class="tgroup"><button class="tbtn" id="t-bal-yes" onclick="setT('bal','yes')">Yes</button><button class="tbtn no" id="t-bal-no" onclick="setT('bal','no')">No</button></div></div>
+    <div class="trow"><span class="tlabel">Carpet present?</span><div class="tgroup"><button class="tbtn" id="t-c-yes" onclick="setT('c','yes')">Yes</button><button class="tbtn no" id="t-c-no" onclick="setT('c','no')">No</button></div></div>
+    <div id="carpet-row" style="display:none;" class="amt-row">
+      <label>Reduce rent by ($)</label>
+      <div class="amt-inner"><span class="amt-sign" style="color:var(--red);">-$</span><input type="number" id="carpet-amt" min="0" placeholder="e.g. 75"></div>
+    </div>
+    <div>
+      <div class="panel-label" style="margin-bottom:4px;">Notes</div>
+      <textarea id="notes" placeholder="e.g. freshly painted, new appliances..." style="min-height:55px;resize:vertical;font-size:11px;"></textarea>
+    </div>
+    <button class="save-unit-btn" id="save-unit-btn" onclick="saveUnitSettings()">Save condition for next time</button>
+    <div class="divider"></div>
+    <button class="calc-btn" onclick="calculate()">Get Recommended Rent</button>
+  </div>
+
+</div>
+
+<!-- MIDDLE PANEL -->
+<div class="right-panel">
+  <div style="font-size:13px;font-weight:700;color:var(--navy);padding-bottom:10px;border-bottom:1px solid var(--border);">&#9313; Market Context</div>
+
+  <!-- EMPTY STATE -->
+  <div id="empty-state" class="empty-state">Select a building and unit to get started.</div>
+
+  <!-- RESULT -->
+  <div id="result-box" style="display:none;" class="result-box">
+    <button class="result-copy" id="copy-btn" onclick="doCopy()">Copy summary</button>
+    <div class="result-label">Recommended asking rent</div>
+    <div class="result-price" id="r-price">-</div>
+    <div class="result-range" id="r-range">-</div>
+    <div class="breakdown-inline" id="breakdown-inline"></div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid" id="bottom-grid" style="display:none;">
+
+    <!-- MARKET CONTEXT CHECK -->
+    <div class="panel-card">
+      <div class="card-header">
+        <span class="card-title">Market context check</span>
+        <span class="card-sub">ChatGPT prompt — pre-filled for this unit</span>
+      </div>
+      <div class="card-body" style="padding:8px;">
+        <div class="gpt-section">
+          <div class="gpt-label">Paste into ChatGPT with Browse enabled</div>
+          <div id="cs-prompt-box" class="gpt-prompt"></div>
+          <div class="gpt-btns">
+            <button class="gpt-open" onclick="openCheatSheetGPT()">Open ChatGPT &#8599;</button>
+            <button class="gpt-copy" id="cs-copy-btn" onclick="copyCheatSheetPrompt()">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div style="font-size:13px;font-weight:700;color:var(--navy);padding-bottom:10px;border-bottom:1px solid var(--border);">&#9314; Unit Rental History</div>
+
+  <!-- HISTORY -->
+  <div class="panel-card">
+    <div class="card-header">
+      <span class="card-title">Past rentals — <span id="hist-unit-lbl">this unit</span></span>
+    </div>
+    <div id="hist-unit-list"><div class="hist-empty">No history yet.</div></div>
+  </div>
+
+  <!-- SAVE -->
+  <div class="panel-card" id="save-box" style="display:none;">
+    <div class="card-body">
+      <div class="save-section">
+        <div class="save-title">Save to unit history</div>
+        <div class="save-text" id="save-text">-</div>
+        <button class="save-open-btn" id="save-open-btn" onclick="openSave()">Save this rental when signed</button>
+        <div class="save-form" id="save-form">
+          <div><label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">Final rent ($)</label><input type="number" id="sf-final" placeholder="Leave blank = recommended"></div>
+          <div><label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px;">Notes</label><textarea id="sf-notes" placeholder="e.g. original kitchen, worn carpet reduced $25, freshly painted..." style="min-height:50px;resize:vertical;font-size:11px;"></textarea></div>
+          <div class="save-actions">
+            <button class="save-confirm" onclick="confirmSave()">Save to history</button>
+            <button class="save-cancel" onclick="closeSave()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+var UDB = {
+  arkay:{"101":{"beds":"2","floor":1,"sqft":641,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":464,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":563,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":544,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":485,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":481,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":478,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":577,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":573,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":536,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":544,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":519,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":461,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":635,"k":false,"ba":false,"bl":false,"ph":true}},
+  fleetwood:{"101":{"beds":"2","floor":1,"sqft":614,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":454,"k":false,"ba":false,"bl":false,"ph":true},"103":{"beds":"1","floor":1,"sqft":453,"k":false,"ba":false,"bl":false,"ph":true},"104":{"beds":"1","floor":1,"sqft":461,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":587,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":479,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":514,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":527,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":453,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":631,"k":false,"ba":false,"bl":false,"ph":true},"207":{"beds":"1","floor":2,"sqft":475,"k":false,"ba":false,"bl":false,"ph":true},"208":{"beds":"1","floor":2,"sqft":541,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":643,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":539,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":519,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":503,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":478,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":617,"k":false,"ba":false,"bl":false,"ph":true},"307":{"beds":"1","floor":3,"sqft":525,"k":false,"ba":false,"bl":false,"ph":true},"308":{"beds":"1","floor":3,"sqft":485,"k":false,"ba":false,"bl":false,"ph":true},"401":{"beds":"2","floor":4,"sqft":560,"k":false,"ba":false,"bl":false,"ph":true}},
+  malabar:{"101":{"beds":"2","floor":1,"sqft":580,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":539,"k":false,"ba":false,"bl":false,"ph":true},"103":{"beds":"1","floor":1,"sqft":504,"k":false,"ba":false,"bl":false,"ph":true},"104":{"beds":"1","floor":1,"sqft":493,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":595,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":469,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":477,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":547,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":493,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":573,"k":false,"ba":false,"bl":false,"ph":true},"207":{"beds":"1","floor":2,"sqft":461,"k":false,"ba":false,"bl":false,"ph":true},"208":{"beds":"1","floor":2,"sqft":498,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":572,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":495,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":558,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":494,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":527,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":593,"k":false,"ba":false,"bl":false,"ph":true},"307":{"beds":"1","floor":3,"sqft":553,"k":false,"ba":false,"bl":false,"ph":true},"308":{"beds":"1","floor":3,"sqft":455,"k":false,"ba":false,"bl":false,"ph":true},"401":{"beds":"2","floor":4,"sqft":618,"k":false,"ba":false,"bl":false,"ph":true}},
+  fairmont:{"A":{"beds":"1","floor":1,"sqft":518,"k":false,"ba":false,"bl":false,"ph":true},"1":{"beds":"2","floor":1,"sqft":575,"k":false,"ba":false,"bl":false,"ph":true},"2":{"beds":"1","floor":1,"sqft":498,"k":false,"ba":false,"bl":false,"ph":true},"3":{"beds":"1","floor":1,"sqft":460,"k":false,"ba":false,"bl":false,"ph":true},"4":{"beds":"1","floor":1,"sqft":520,"k":false,"ba":false,"bl":false,"ph":true},"5":{"beds":"1","floor":1,"sqft":487,"k":false,"ba":false,"bl":false,"ph":true},"6":{"beds":"2","floor":1,"sqft":640,"k":false,"ba":false,"bl":false,"ph":true},"7":{"beds":"1","floor":1,"sqft":529,"k":false,"ba":false,"bl":false,"ph":true},"8":{"beds":"1","floor":1,"sqft":560,"k":false,"ba":false,"bl":false,"ph":true},"9":{"beds":"1","floor":1,"sqft":496,"k":false,"ba":false,"bl":false,"ph":true},"10":{"beds":"1","floor":2,"sqft":523,"k":false,"ba":false,"bl":false,"ph":true},"11":{"beds":"1","floor":2,"sqft":474,"k":false,"ba":false,"bl":false,"ph":true},"12":{"beds":"1","floor":2,"sqft":540,"k":false,"ba":false,"bl":false,"ph":true},"14":{"beds":"1","floor":2,"sqft":458,"k":false,"ba":false,"bl":false,"ph":true},"15":{"beds":"1","floor":2,"sqft":455,"k":false,"ba":false,"bl":false,"ph":true},"16":{"beds":"1","floor":2,"sqft":534,"k":false,"ba":false,"bl":false,"ph":true},"17":{"beds":"1","floor":2,"sqft":479,"k":false,"ba":false,"bl":false,"ph":true},"18":{"beds":"1","floor":2,"sqft":548,"k":false,"ba":false,"bl":false,"ph":true},"19":{"beds":"1","floor":2,"sqft":487,"k":false,"ba":false,"bl":false,"ph":true},"20":{"beds":"1","floor":3,"sqft":460,"k":false,"ba":false,"bl":false,"ph":true},"21":{"beds":"1","floor":3,"sqft":559,"k":false,"ba":false,"bl":false,"ph":true},"22":{"beds":"1","floor":3,"sqft":479,"k":false,"ba":false,"bl":false,"ph":true},"23":{"beds":"1","floor":3,"sqft":560,"k":false,"ba":false,"bl":false,"ph":true},"24":{"beds":"1","floor":3,"sqft":462,"k":false,"ba":false,"bl":false,"ph":true},"25":{"beds":"1","floor":3,"sqft":498,"k":false,"ba":false,"bl":false,"ph":true},"26":{"beds":"1","floor":3,"sqft":485,"k":false,"ba":false,"bl":false,"ph":true},"27":{"beds":"1","floor":3,"sqft":508,"k":false,"ba":false,"bl":false,"ph":true},"P.H.":{"beds":"3","floor":3,"sqft":761,"k":false,"ba":false,"bl":false,"ph":true}},
+  kincaid:{"8":{"beds":"1","floor":1,"sqft":556,"k":false,"ba":false,"bl":false,"ph":true},"9":{"beds":"1","floor":1,"sqft":496,"k":false,"ba":false,"bl":false,"ph":true},"10":{"beds":"1","floor":2,"sqft":470,"k":false,"ba":false,"bl":false,"ph":true},"12":{"beds":"1","floor":2,"sqft":497,"k":false,"ba":false,"bl":false,"ph":true},"12A":{"beds":"1","floor":1,"sqft":495,"k":false,"ba":false,"bl":false,"ph":true},"14":{"beds":"1","floor":2,"sqft":476,"k":false,"ba":false,"bl":false,"ph":true},"101":{"beds":"2","floor":1,"sqft":645,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":484,"k":false,"ba":false,"bl":false,"ph":true},"103":{"beds":"1","floor":1,"sqft":539,"k":false,"ba":false,"bl":false,"ph":true},"104":{"beds":"1","floor":1,"sqft":537,"k":false,"ba":false,"bl":false,"ph":true},"105":{"beds":"1","floor":1,"sqft":532,"k":false,"ba":false,"bl":false,"ph":true},"106":{"beds":"2","floor":1,"sqft":569,"k":false,"ba":false,"bl":false,"ph":true},"107":{"beds":"1","floor":1,"sqft":527,"k":false,"ba":false,"bl":false,"ph":true},"108":{"beds":"1","floor":1,"sqft":531,"k":false,"ba":false,"bl":false,"ph":true},"109":{"beds":"1","floor":1,"sqft":471,"k":false,"ba":false,"bl":false,"ph":true},"110":{"beds":"1","floor":1,"sqft":518,"k":false,"ba":false,"bl":false,"ph":true},"111":{"beds":"1","floor":1,"sqft":543,"k":false,"ba":false,"bl":false,"ph":true},"112":{"beds":"1","floor":1,"sqft":481,"k":false,"ba":false,"bl":false,"ph":true},"113":{"beds":"1","floor":1,"sqft":470,"k":false,"ba":false,"bl":false,"ph":true},"114":{"beds":"1","floor":1,"sqft":509,"k":false,"ba":false,"bl":false,"ph":true},"115":{"beds":"1","floor":1,"sqft":498,"k":false,"ba":false,"bl":false,"ph":true},"115A":{"beds":"1","floor":1,"sqft":484,"k":false,"ba":false,"bl":false,"ph":true},"116":{"beds":"1","floor":1,"sqft":531,"k":false,"ba":false,"bl":false,"ph":true},"117":{"beds":"1","floor":1,"sqft":538,"k":false,"ba":false,"bl":false,"ph":true},"118":{"beds":"1","floor":1,"sqft":521,"k":false,"ba":false,"bl":false,"ph":true},"119":{"beds":"1","floor":1,"sqft":478,"k":false,"ba":false,"bl":false,"ph":true},"120":{"beds":"1","floor":1,"sqft":537,"k":false,"ba":false,"bl":false,"ph":true},"121":{"beds":"1","floor":1,"sqft":491,"k":false,"ba":false,"bl":false,"ph":true},"121A":{"beds":"1","floor":1,"sqft":557,"k":false,"ba":false,"bl":false,"ph":true},"122":{"beds":"1","floor":1,"sqft":548,"k":false,"ba":false,"bl":false,"ph":true},"123":{"beds":"1","floor":1,"sqft":549,"k":false,"ba":false,"bl":false,"ph":true},"124":{"beds":"1","floor":1,"sqft":457,"k":false,"ba":false,"bl":false,"ph":true},"125":{"beds":"1","floor":1,"sqft":479,"k":false,"ba":false,"bl":false,"ph":true},"126":{"beds":"1","floor":1,"sqft":555,"k":false,"ba":false,"bl":false,"ph":true},"127":{"beds":"1","floor":1,"sqft":454,"k":false,"ba":false,"bl":false,"ph":true},"128":{"beds":"1","floor":1,"sqft":553,"k":false,"ba":false,"bl":false,"ph":true},"129":{"beds":"1","floor":1,"sqft":490,"k":false,"ba":false,"bl":false,"ph":true},"130":{"beds":"1","floor":1,"sqft":501,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":594,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":458,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":477,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":522,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":541,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":600,"k":false,"ba":false,"bl":false,"ph":true},"207":{"beds":"1","floor":2,"sqft":477,"k":false,"ba":false,"bl":false,"ph":true}},
+  marilyn1:{"101":{"beds":"2","floor":1,"sqft":643,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":513,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":610,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":532,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":508,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":468,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":483,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":577,"k":false,"ba":false,"bl":false,"ph":true},"207":{"beds":"1","floor":2,"sqft":481,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":631,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":518,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":483,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":545,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":524,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":614,"k":false,"ba":false,"bl":false,"ph":true},"307":{"beds":"1","floor":3,"sqft":524,"k":false,"ba":false,"bl":false,"ph":true},"401":{"beds":"2","floor":4,"sqft":611,"k":false,"ba":false,"bl":false,"ph":true},"402":{"beds":"1","floor":4,"sqft":496,"k":false,"ba":false,"bl":false,"ph":true},"403":{"beds":"1","floor":4,"sqft":478,"k":false,"ba":false,"bl":false,"ph":true},"404":{"beds":"1","floor":4,"sqft":467,"k":false,"ba":false,"bl":false,"ph":true},"405":{"beds":"1","floor":4,"sqft":515,"k":false,"ba":false,"bl":false,"ph":true}},
+  marilyn2:{"101":{"beds":"2","floor":1,"sqft":623,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":461,"k":false,"ba":false,"bl":false,"ph":true},"103":{"beds":"1","floor":1,"sqft":546,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":566,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":560,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":464,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":469,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":530,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":580,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":647,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":504,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":526,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":458,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":499,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":608,"k":false,"ba":false,"bl":false,"ph":true},"401":{"beds":"2","floor":4,"sqft":636,"k":false,"ba":false,"bl":false,"ph":true}},
+  marilyn3:{"101":{"beds":"2","floor":1,"sqft":619,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":517,"k":false,"ba":false,"bl":false,"ph":true},"103":{"beds":"1","floor":1,"sqft":482,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":630,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":560,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":451,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":537,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":542,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":574,"k":false,"ba":false,"bl":false,"ph":true},"207":{"beds":"1","floor":2,"sqft":537,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":628,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":546,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":484,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":548,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":532,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":603,"k":false,"ba":false,"bl":false,"ph":true},"307":{"beds":"1","floor":3,"sqft":464,"k":false,"ba":false,"bl":false,"ph":true},"401":{"beds":"2","floor":4,"sqft":597,"k":false,"ba":false,"bl":false,"ph":true},"402":{"beds":"1","floor":4,"sqft":505,"k":false,"ba":false,"bl":false,"ph":true},"403":{"beds":"1","floor":4,"sqft":470,"k":false,"ba":false,"bl":false,"ph":true},"404":{"beds":"1","floor":4,"sqft":508,"k":false,"ba":false,"bl":false,"ph":true},"405":{"beds":"1","floor":4,"sqft":450,"k":false,"ba":false,"bl":false,"ph":true}},
+  coronation:{"1":{"beds":"2","floor":1,"sqft":593,"k":false,"ba":false,"bl":false,"ph":true},"2":{"beds":"1","floor":1,"sqft":514,"k":false,"ba":false,"bl":false,"ph":true},"3":{"beds":"1","floor":1,"sqft":547,"k":false,"ba":false,"bl":false,"ph":true},"4":{"beds":"1","floor":1,"sqft":472,"k":false,"ba":false,"bl":false,"ph":true},"5":{"beds":"1","floor":1,"sqft":514,"k":false,"ba":false,"bl":false,"ph":true},"6":{"beds":"2","floor":1,"sqft":573,"k":false,"ba":false,"bl":false,"ph":true},"7":{"beds":"1","floor":1,"sqft":530,"k":false,"ba":false,"bl":false,"ph":true},"8":{"beds":"1","floor":1,"sqft":488,"k":false,"ba":false,"bl":false,"ph":true},"9":{"beds":"1","floor":1,"sqft":557,"k":false,"ba":false,"bl":false,"ph":true},"10":{"beds":"1","floor":2,"sqft":531,"k":false,"ba":false,"bl":false,"ph":true},"11":{"beds":"1","floor":2,"sqft":514,"k":false,"ba":false,"bl":false,"ph":true},"12":{"beds":"1","floor":2,"sqft":527,"k":false,"ba":false,"bl":false,"ph":true},"14A":{"beds":"1","floor":2,"sqft":475,"k":false,"ba":false,"bl":false,"ph":true},"14":{"beds":"1","floor":2,"sqft":469,"k":false,"ba":false,"bl":false,"ph":true},"15":{"beds":"1","floor":2,"sqft":497,"k":false,"ba":false,"bl":false,"ph":true},"16":{"beds":"1","floor":2,"sqft":547,"k":false,"ba":false,"bl":false,"ph":true},"17":{"beds":"1","floor":2,"sqft":470,"k":false,"ba":false,"bl":false,"ph":true},"18":{"beds":"1","floor":2,"sqft":519,"k":false,"ba":false,"bl":false,"ph":true},"19":{"beds":"1","floor":2,"sqft":549,"k":false,"ba":false,"bl":false,"ph":true},"20":{"beds":"1","floor":3,"sqft":517,"k":false,"ba":false,"bl":false,"ph":true},"21":{"beds":"1","floor":3,"sqft":450,"k":false,"ba":false,"bl":false,"ph":true},"22":{"beds":"1","floor":3,"sqft":526,"k":false,"ba":false,"bl":false,"ph":true},"23":{"beds":"1","floor":3,"sqft":491,"k":false,"ba":false,"bl":false,"ph":true},"24":{"beds":"1","floor":3,"sqft":512,"k":false,"ba":false,"bl":false,"ph":true},"25":{"beds":"1","floor":3,"sqft":452,"k":false,"ba":false,"bl":false,"ph":true},"26":{"beds":"1","floor":3,"sqft":464,"k":false,"ba":false,"bl":false,"ph":true},"27":{"beds":"1","floor":3,"sqft":496,"k":false,"ba":false,"bl":false,"ph":true},"28":{"beds":"1","floor":3,"sqft":556,"k":false,"ba":false,"bl":false,"ph":true}},
+  marob:{"101":{"beds":"2","floor":1,"sqft":599,"k":false,"ba":false,"bl":false,"ph":true},"102":{"beds":"1","floor":1,"sqft":480,"k":false,"ba":false,"bl":false,"ph":true},"103":{"beds":"1","floor":1,"sqft":457,"k":false,"ba":false,"bl":false,"ph":true},"201":{"beds":"2","floor":2,"sqft":590,"k":false,"ba":false,"bl":false,"ph":true},"202":{"beds":"1","floor":2,"sqft":522,"k":false,"ba":false,"bl":false,"ph":true},"203":{"beds":"1","floor":2,"sqft":460,"k":false,"ba":false,"bl":false,"ph":true},"204":{"beds":"1","floor":2,"sqft":460,"k":false,"ba":false,"bl":false,"ph":true},"205":{"beds":"1","floor":2,"sqft":543,"k":false,"ba":false,"bl":false,"ph":true},"206":{"beds":"2","floor":2,"sqft":622,"k":false,"ba":false,"bl":false,"ph":true},"301":{"beds":"2","floor":3,"sqft":568,"k":false,"ba":false,"bl":false,"ph":true},"302":{"beds":"1","floor":3,"sqft":547,"k":false,"ba":false,"bl":false,"ph":true},"303":{"beds":"1","floor":3,"sqft":518,"k":false,"ba":false,"bl":false,"ph":true},"304":{"beds":"1","floor":3,"sqft":548,"k":false,"ba":false,"bl":false,"ph":true},"305":{"beds":"1","floor":3,"sqft":466,"k":false,"ba":false,"bl":false,"ph":true},"306":{"beds":"2","floor":3,"sqft":576,"k":false,"ba":false,"bl":false,"ph":true},"307":{"beds":"1","floor":3,"sqft":534,"k":false,"ba":false,"bl":false,"ph":true},"401":{"beds":"2","floor":4,"sqft":620,"k":false,"ba":false,"bl":false,"ph":true},"402":{"beds":"1","floor":4,"sqft":520,"k":false,"ba":false,"bl":false,"ph":true},"403":{"beds":"1","floor":4,"sqft":471,"k":false,"ba":false,"bl":false,"ph":true}}
+};
+var BLD = {
+  arkay:     {area:"Marpole, Vancouver",        addr:"8792 Osler Street, Vancouver, BC",          postal:"V6P4E9",          cl:"marpole",         kc:"vancouver",       ki:"1700287", kn:"marpole",         lv:"vancouver/marpole",         mr:{studio:[1600,1850],"1":[1800,2100],"2":[2400,2900],"3":[3200,3800]}},
+  fleetwood: {area:"Marpole, Vancouver",        addr:"8668 French Street, Vancouver, BC",          postal:"V6P4W6",          cl:"marpole",         kc:"vancouver",       ki:"1700287", kn:"marpole",         lv:"vancouver/marpole",         mr:{studio:[1600,1850],"1":[1800,2100],"2":[2400,2900],"3":[3200,3800]}},
+  malabar:   {area:"Marpole, Vancouver",        addr:"8726 Montcalm Street, Vancouver, BC",        postal:"V6P4R2",        cl:"marpole",         kc:"vancouver",       ki:"1700287", kn:"marpole",         lv:"vancouver/marpole",         mr:{studio:[1600,1850],"1":[1800,2100],"2":[2400,2900],"3":[3200,3800]}},
+  fairmont:  {area:"South Granville, Vancouver",addr:"2570 Spruce Street, Vancouver, BC",          postal:"V6H2P7",          cl:"south+granville", kc:"vancouver",       ki:"1700287", kn:"south-granville", lv:"vancouver/south-granville", mr:{studio:[1700,1950],"1":[1900,2250],"2":[2600,3100],"3":[3400,4000]}},
+  kincaid:   {area:"Burnaby",                   addr:"3953 Smith Avenue, Burnaby, BC",             postal:"V5G1W7",             cl:"burnaby",         kc:"burnaby",         ki:"1700288", kn:"burnaby",         lv:"burnaby",                   mr:{studio:[1550,1800],"1":[1750,2050],"2":[2300,2750],"3":[3000,3600]}},
+  marilyn1:  {area:"Downtown New Westminster",  addr:"307 Agnes Street, New Westminster, BC",      postal:"V3L1W7",      cl:"new+westminster", kc:"new-westminster", ki:"1700291", kn:"new-westminster", lv:"new-westminster",           mr:{studio:[1500,1750],"1":[1700,2000],"2":[2200,2700],"3":[2900,3500]}},
+  marilyn2:  {area:"Downtown New Westminster",  addr:"74 Merivale Street, New Westminster, BC",    postal:"V3L2P5",    cl:"new+westminster", kc:"new-westminster", ki:"1700291", kn:"new-westminster", lv:"new-westminster",           mr:{studio:[1500,1750],"1":[1700,2000],"2":[2200,2700],"3":[2900,3500]}},
+  marilyn3:  {area:"Downtown New Westminster",  addr:"309 Agnes Street, New Westminster, BC",      postal:"V3L1E7",      cl:"new+westminster", kc:"new-westminster", ki:"1700291", kn:"new-westminster", lv:"new-westminster",           mr:{studio:[1500,1750],"1":[1700,2000],"2":[2200,2700],"3":[2900,3500]}},
+  coronation:{area:"Downtown New Westminster",  addr:"320 Carnarvon Street, New Westminster, BC",  postal:"V3L1C1",  cl:"new+westminster", kc:"new-westminster", ki:"1700291", kn:"new-westminster", lv:"new-westminster",           mr:{studio:[1500,1750],"1":[1700,2000],"2":[2200,2700],"3":[2900,3500]}},
+  marob:     {area:"Downtown New Westminster",  addr:"125 Agnes Street, New Westminster, BC",      postal:"V3L1E4",      cl:"new+westminster", kc:"new-westminster", ki:"1700291", kn:"new-westminster", lv:"new-westminster",           mr:{studio:[1500,1750],"1":[1700,2000],"2":[2200,2700],"3":[2900,3500]}}
+};
+var KJB = {studio:"bachelor","1":"1-bedroom","2":"2-bedroom","3":"3-bedroom"};
+var BN = {arkay:"Arkay",fleetwood:"Fleetwood",malabar:"Malabar",fairmont:"Fairmont",kincaid:"Kincaid",marilyn1:"Marilyn Manor",marilyn2:"Marilyn Manor II",marilyn3:"Marilyn Manor III",coronation:"Coronation Court",marob:"Marob"};
+var BAGE = {arkay:"N/A",fleetwood:"N/A",malabar:"N/A",fairmont:"N/A",kincaid:"N/A",marilyn1:"N/A",marilyn2:"N/A",marilyn3:"N/A",coronation:"N/A",marob:"N/A"};
+var LVB = {studio:"studio","1":"1-bedroom","2":"2-bedroom","3":"3-bedroom"};
+var SEA = ["January is slow - price at the lower end.","February is slow - price competitively.","March - market picks up.","April is strong - price confidently.","May is peak season - price firmly.","June is peak season.","July is peak - summer movers active.","August is peak - price firmly.","September stays strong.","October softening - price at midpoint.","November is slow - price competitively.","December is slowest - price at low end."];
+var _bk=null,_u=null,_p=null,_ct='';
+
+function floorLabel(f){return f===1?"Ground / 1st":f===2?"2nd":f===3?"3rd":f+"th";}
+function bedsLabel(b){return b==="studio"?"Studio":b+" Bedroom";}
+
+function loadUnit(){
+  var bk=document.getElementById('sel-building').value;
+  var u=document.getElementById('sel-unit').value.trim();
+  if(!bk){alert('Please select a building.');return;}
+  if(!u){alert('Please enter a unit number.');return;}
+  var units=UDB[bk];
+  if(!units){alert('Building not found.');return;}
+  var d=units[u]||units[u.toUpperCase()]||units[u.toLowerCase()];
+  if(!d){alert('Unit '+u+' not found. Please check the unit number.');return;}
+  _bk=bk;_u=d;
+  var bn=BN[bk]||bk;
+  var fl=floorLabel(d.floor);
+  var bl=bedsLabel(d.beds);
+  var hasB=(bk==='fleetwood'||bk==='malabar'||bk==='marob');
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('bottom-grid').style.display='flex';
+  document.getElementById('info-title').textContent=bn+' - Unit '+u;
+  document.getElementById('d-beds').textContent=bl;
+  document.getElementById('d-floor').textContent=fl;
+  document.getElementById('d-sqft').textContent=d.sqft?d.sqft+' sq ft':'Unknown';
+  var ke=document.getElementById('d-kitchen');ke.textContent=d.k?'Yes':'No';ke.className='ui-val '+(d.k?'yes':'no');
+  var be=document.getElementById('d-bath');be.textContent=d.ba?'Yes':'No';be.className='ui-val '+(d.ba?'yes':'no');
+  document.getElementById('d-balcony-wrap').style.display=hasB?'flex':'none';
+  if(hasB){var bae=document.getElementById('d-balcony');bae.textContent=d.bl?'Yes':'No';bae.className='ui-val '+(d.bl?'yes':'no');}
+  var phEl=document.getElementById('d-ph-note');if(phEl)phEl.style.display=d.ph?'block':'none';
+  document.getElementById('unit-info-section').style.display='block';
+  document.getElementById('condition-section').style.display='block';
+  var b=BLD[bk];
+  var bn2=d.beds==='studio'?'0':d.beds;
+  var cla=b.cl.split('+').join(' ');
+  document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bn2;
+  var kjSlug=d.beds==='studio'?'bachelor':d.beds+'+bedroom';
+  var kjAttr=d.beds==='1'?'a27949001':d.beds==='2'?'a29276001':d.beds==='3'?'a29276002':'';
+  document.getElementById('kj-link').href='https://www.kijiji.ca/b-apartments-condos/'+b.kc+'/'+kjSlug+'/c37l'+b.ki+(kjAttr?kjAttr:'');
+  var lvBeds=d.beds==='studio'?'studio':d.beds+'-bedroom';
+  document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv+'/'+lvBeds;
+  var fbCity=(_bk==='kincaid')?'burnaby':(_bk==='marilyn1'||_bk==='marilyn2'||_bk==='marilyn3'||_bk==='coronation'||_bk==='marob')?'new-westminster':'vancouver';
+  var FBB={studio:'studio-apartments','1':'1-bedroom-apartments','2':'2-bedroom-apartments','3':'3-bedroom-apartments'};
+  document.getElementById('fb-link').href='https://www.facebook.com/marketplace/'+fbCity+'/'+(FBB[d.beds]||'apartments-for-rent')+'/?location='+encodeURIComponent(b.addr)+'&radius=2';
+  document.getElementById('fb-addr-text').textContent=b.area;
+  document.getElementById('fb-addr-row').style.display='flex';
+  window._fbAddr=b.area;
+  setT('k',d.k?'yes':'no');
+  setT('b',d.ba?'yes':'no');
+  document.getElementById('t-bal-row').style.display=hasB?'flex':'none';
+  if(hasB)setT('bal',d.bl?'yes':'no');
+  setT('c','no');
+  document.getElementById('carpet-amt').value='';
+  document.getElementById('kitchen-amt').value='';
+  document.getElementById('bath-amt').value='';
+  document.getElementById('notes').value='';
+  document.getElementById('mkt-low').value='';
+  document.getElementById('mkt-high').value='';
+  loadUnitSettings();
+  document.getElementById('hist-unit-lbl').textContent=bn+' - Unit '+u;
+  seedDemoHistory();
+  loadUHist(bk,u);
+  renderMarketTable();
+  buildCSPrompt();
+}
+
+function saveUnitSettings(){
+  if(!_bk||!_u)return;
+  var unit=document.getElementById('sel-unit').value.trim();
+  if(!unit)return;
+  var settings={
+    kitchen:document.getElementById('t-k-yes').className.indexOf('yes')>=0,
+    kitchenAmt:document.getElementById('kitchen-amt').value,
+    bath:document.getElementById('t-b-yes').className.indexOf('yes')>=0,
+    bathAmt:document.getElementById('bath-amt').value,
+    balcony:document.getElementById('t-bal-yes')&&document.getElementById('t-bal-yes').className.indexOf('yes')>=0,
+    carpet:document.getElementById('t-c-yes').className.indexOf('yes')>=0,
+    carpetAmt:document.getElementById('carpet-amt').value,
+    notes:document.getElementById('notes').value
+  };
+  var key='kc_settings_'+_bk+'_'+unit.toLowerCase().split(' ').join('');
+  localStorage.setItem(key,JSON.stringify(settings));
+  var btn=document.getElementById('save-unit-btn');
+  btn.textContent='Saved!';btn.style.background='var(--green)';btn.style.color='white';
+  setTimeout(function(){btn.textContent='Save condition for next time';btn.style.background='var(--lt-green)';btn.style.color='var(--green)';},2000);
+}
+
+function loadUnitSettings(){
+  if(!_bk||!_u)return;
+  var unit=document.getElementById('sel-unit').value.trim();
+  if(!unit)return;
+  var key='kc_settings_'+_bk+'_'+unit.toLowerCase().split(' ').join('');
+  var saved=null;
+  try{saved=JSON.parse(localStorage.getItem(key));}catch(e){}
+  if(!saved)return;
+  setT('k',saved.kitchen?'yes':'no');
+  if(saved.kitchenAmt)document.getElementById('kitchen-amt').value=saved.kitchenAmt;
+  setT('b',saved.bath?'yes':'no');
+  if(saved.bathAmt)document.getElementById('bath-amt').value=saved.bathAmt;
+  var hasBalcony=(_bk==='fleetwood'||_bk==='malabar'||_bk==='marob');
+  if(hasBalcony&&saved.balcony!==undefined)setT('bal',saved.balcony?'yes':'no');
+  setT('c',saved.carpet?'yes':'no');
+  if(saved.carpetAmt)document.getElementById('carpet-amt').value=saved.carpetAmt;
+  if(saved.notes)document.getElementById('notes').value=saved.notes;
+}
+
+function setT(f,v){
+  var y=document.getElementById('t-'+f+'-yes');
+  var n=document.getElementById('t-'+f+'-no');
+  if(!y||!n)return;
+  if(v==='yes'){y.className='tbtn yes';n.className='tbtn';}
+  else{y.className='tbtn';n.className='tbtn no';}
+  if(f==='c')document.getElementById('carpet-row').style.display=v==='yes'?'block':'none';
+  if(f==='k')document.getElementById('kitchen-amt-row').style.display=v==='yes'?'block':'none';
+  if(f==='b')document.getElementById('bath-amt-row').style.display=v==='yes'?'block':'none';
+}
+
+function updateLinks(){
+  if(!_bk||!_u)return;
+  var b=BLD[_bk];
+  var beds=_u.beds;
+  var bedsNum=beds==='studio'?'0':beds;
+  var cla=b.cl.split('+').join(' ');
+  var lo=parseInt(document.getElementById('mkt-low').value)||0;
+  var hi=parseInt(document.getElementById('mkt-high').value)||0;
+  var clPrice=lo>0?'&min_price='+lo+(hi>0?'&max_price='+hi:''):'';
+  document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bedsNum+clPrice;
+  var kjSlug2=beds==='studio'?'bachelor':beds+'+bedroom';
+  var kjAttr2=beds==='1'?'a27949001':beds==='2'?'a29276001':beds==='3'?'a29276002':'';
+  document.getElementById('kj-link').href='https://www.kijiji.ca/b-apartments-condos/'+b.kc+'/'+kjSlug2+'/c37l'+b.ki+(kjAttr2?kjAttr2:'');
+  var lvBeds=beds==='studio'?'studio':beds+'-bedroom';
+  document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv+'/'+lvBeds;
+}
+
+function showMid(){
+  var lo=parseFloat(document.getElementById('mkt-low').value);
+  var hi=parseFloat(document.getElementById('mkt-high').value);
+  var el=document.getElementById('mid-display');
+  if(!isNaN(lo)&&!isNaN(hi)&&hi>lo){
+    var m=Math.round((lo+hi)/2/25)*25;
+    el.textContent='Midpoint: $'+m.toLocaleString()+' — this becomes your starting point';
+    el.style.display='block';
+  }else{el.style.display='none';}
+}
+
+function renderMarketTable(){
+  if(!_bk||!_u)return;
+  var b=BLD[_bk];
+  var currentArea=b.area;
+  var currentBeds=_u.beds;
+  var beds=['studio','1','2','3'];
+  var bedLabels={studio:'Studio','1':'1-bed','2':'2-bed','3':'3-bed'};
+  var areas=[
+    {key:'Marpole, Vancouver',label:'Marpole'},
+    {key:'South Granville, Vancouver',label:'S. Granville'},
+    {key:'Burnaby',label:'Burnaby'},
+    {key:'Downtown New Westminster',label:'New West'}
+  ];
+  var areaData={};
+  for(var bk in BLD){var ab=BLD[bk];if(!areaData[ab.area])areaData[ab.area]=ab.mr;}
+  var bedsShort=currentBeds==='studio'?'studio':currentBeds+'-bed';
+  document.getElementById('cs-context').textContent=bedsShort;
+  var thead='<tr><th>Neighbourhood</th>';
+  beds.forEach(function(bd){
+    var isActive=(bd===currentBeds);
+    thead+='<th style="'+(isActive?'color:var(--navy);':'')+'">'+bedLabels[bd]+(isActive?' *':''+'</th>');
+  });
+  thead+='</tr>';
+  var tbody='';
+  areas.forEach(function(a){
+    var mr=areaData[a.key];
+    if(!mr)return;
+    var isActiveArea=(a.key===currentArea);
+    tbody+='<tr'+(isActiveArea?' class="active-row"':'')+'><td>'+a.label+'</td>';
+    beds.forEach(function(bd){
+      var r=mr[bd]||mr['1'];
+      var isActive=(bd===currentBeds&&isActiveArea);
+      tbody+='<td'+(isActive?' class="active-col"':'')+'>$'+r[0].toLocaleString()+'-'+r[1].toLocaleString()+'</td>';
+    });
+    tbody+='</tr>';
+  });
+  document.getElementById('cs-table-area').innerHTML='<table class="mkt-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
+}
+
+function buildCSPrompt(){
+  if(!_bk||!_u)return;
+  var b=BLD[_bk];
+  var bName=BN[_bk]||_bk;
+  var bedsLabel=_u.beds==='studio'?'studio':_u.beds+'-bedroom';
+  var area=b.area;
+  var loVal=document.getElementById('mkt-low').value;
+  var hiVal=document.getElementById('mkt-high').value;
+  var priceFilter;
+  if(loVal&&hiVal){priceFilter='$'+loVal+' to $'+hiVal+' per month';}
+  else if(loVal){priceFilter='minimum $'+loVal+' per month';}
+  else if(hiVal){priceFilter='maximum $'+hiVal+' per month';}
+  else{var mr=b.mr[_u.beds]||b.mr['1'];priceFilter='$'+mr[0]+' to $'+mr[1]+' per month';}
+  var NL='\n';
+  var prompt='I am a property manager pricing a '+bedsLabel+' apartment at '+bName+', '+b.addr+' in '+area+'.'+NL+NL
+    +'Please search the web RIGHT NOW and find current '+bedsLabel+' rental listings in '+area+' priced '+priceFilter+'.'+NL
+    +'(Price range: '+priceFilter+' — based on '+(loVal&&hiVal?'your entered range':'built-in market data for this neighbourhood')+')'+NL+NL
+    +'Search Craigslist Vancouver, Kijiji Vancouver, Rentals.ca, and liv.rent. Only include CURRENTLY ACTIVE listings.'+NL+NL
+    +'YOUR RESPONSE MUST INCLUDE A FORMATTED TABLE. Do not skip the table even if listings are limited.'+NL
+    +'Table columns: Address | Rent ($/mo) | Beds | Sq Ft | Notes'+NL
+    +'For Notes: always include renovation status (original / partly updated / fully renovated), parking, laundry, floor if known.'+NL
+    +'For Sq Ft: include if listed, otherwise write n/a'+NL+NL
+    +'Focus ONLY on older purpose-built apartment buildings similar in age and style to '+bName+' — mid-century or older stock, standard finishes. Exclude new condos, luxury units, basement suites, shared housing.'+NL
+    +'Only include listings you are confident are currently active. Quality over quantity — 2 strong comparables beats 8 weak ones.'+NL+NL
+    +'After the table, add a short market summary: lowest rent found, highest rent found, and what the market implies for pricing an unrenovated vs partly updated vs fully renovated unit.';
+  window._csPrompt=prompt;
+  var el=document.getElementById('cs-prompt-box');
+  if(el)el.textContent=prompt;
+}
+
+function openCheatSheetGPT(){
+  buildCSPrompt();
+  window.open('https://chat.openai.com/?q='+encodeURIComponent(window._csPrompt||''),'_blank');
+}
+
+function copyCheatSheetPrompt(){
+  buildCSPrompt();
+  navigator.clipboard.writeText(window._csPrompt||'').then(function(){
+    var btn=document.getElementById('cs-copy-btn');
+    btn.textContent='Copied!';
+    setTimeout(function(){btn.textContent='Copy';},2000);
+  });
+}
+
+function copyFBAddr(){
+  if(!window._fbAddr)return;
+  navigator.clipboard.writeText(window._fbAddr).then(function(){
+    var btn=document.getElementById('fb-copy-btn');
+    btn.textContent='Copied!';
+    setTimeout(function(){btn.textContent='Copy';},2000);
+  });
+}
+
+
+
+function calculate(){
+  if(!_bk||!_u){alert('Please load a unit first.');return;}
+  var b=BLD[_bk];
+  var beds=_u.beds;
+  var mr=b.mr[beds]||b.mr['1'];
+  var lo=parseFloat(document.getElementById('mkt-low').value);
+  var hi=parseFloat(document.getElementById('mkt-high').value);
+  var uu=!isNaN(lo)&&!isNaN(hi)&&hi>lo;
+  var base=uu?Math.round((lo+hi)/2/25)*25:Math.round((mr[0]+mr[1])/2/25)*25;
+  var fadj=_u.floor===1?-75:_u.floor>=4?75:0;
+  var adjs=[];
+  var ky=document.getElementById('t-k-yes').className.indexOf('yes')>=0;
+  var by=document.getElementById('t-b-yes').className.indexOf('yes')>=0;
+  var baly=document.getElementById('t-bal-yes')&&document.getElementById('t-bal-yes').className.indexOf('yes')>=0;
+  var cy=document.getElementById('t-c-yes').className.indexOf('yes')>=0;
+  if(ky){var ka=parseFloat(document.getElementById('kitchen-amt').value);adjs.push({l:'Updated kitchen',v:(!isNaN(ka)&&ka>0)?ka:75});}
+  if(by){var ba=parseFloat(document.getElementById('bath-amt').value);adjs.push({l:'Updated bathroom',v:(!isNaN(ba)&&ba>0)?ba:75});}
+  if(baly)adjs.push({l:'Balcony',v:75});
+  if(cy){var ca=parseFloat(document.getElementById('carpet-amt').value);if(!isNaN(ca)&&ca>0)adjs.push({l:'Carpet condition',v:-ca});}
+  var at=0;for(var i=0;i<adjs.length;i++)at+=adjs[i].v;
+  var total=base+fadj+at;
+  var rounded=Math.round(total/25)*25;
+  var rlo=rounded-50,rhi=rounded+50;
+
+  document.getElementById('result-box').style.display='block';
+  document.getElementById('bottom-grid').style.display='flex';
+  document.getElementById('r-price').textContent='$'+rounded.toLocaleString()+'/mo';
+  document.getElementById('r-range').textContent='Reasonable range: $'+rlo.toLocaleString()+' - $'+rhi.toLocaleString();
+
+  var fl=floorLabel(_u.floor);
+  var breakdownItems=[];
+  breakdownItems.push('<span class="bitem">Market midpoint ('+(uu?'your check':b.area)+')<span>$'+base.toLocaleString()+'</span></span>');
+  if(fadj!==0)breakdownItems.push('<span class="bitem">Floor ('+fl+')<span class="'+(fadj>0?'pos':'neg')+'">'+(fadj>0?'+':'')+fadj+'</span></span>');
+  for(var j=0;j<adjs.length;j++)breakdownItems.push('<span class="bitem">'+adjs[j].l+'<span class="'+(adjs[j].v>0?'pos':'neg')+'">'+(adjs[j].v>0?'+':'')+adjs[j].v+'</span></span>');
+  breakdownItems.push('<span class="bitem" style="font-weight:700;">Recommended<span>$'+rounded.toLocaleString()+'</span></span>');
+  document.getElementById('breakdown-inline').innerHTML=breakdownItems.join('');
+  var unit=document.getElementById('sel-unit').value.trim();
+  if(unit){
+    document.getElementById('save-text').textContent=(BN[_bk]||_bk)+' Unit '+unit+' - '+bedsLabel(beds)+', '+fl+' — asking $'+rounded.toLocaleString()+'/mo. Save once signed.';
+    document.getElementById('save-box').style.display='block';
+  }
+  _p=rounded;
+  _ct='KrellCo Rent - '+(BN[_bk]||_bk)+' Unit '+unit+'\nRecommended: $'+rounded.toLocaleString()+'/mo\nRange: $'+rlo.toLocaleString()+' - $'+rhi.toLocaleString()+'\nMarket ('+b.area+'): $'+mr[0].toLocaleString()+' - $'+mr[1].toLocaleString();
+}
+
+function doCopy(){
+  if(!_ct)return;
+  navigator.clipboard.writeText(_ct).then(function(){
+    var btn=document.getElementById('copy-btn');
+    btn.textContent='Copied!';
+    setTimeout(function(){btn.textContent='Copy summary';},2000);
+  });
+}
+
+function mkey(bk,u){return 'kc_'+bk+'_'+u.toLowerCase().split(' ').join('');}
+
+function loadUHist(bk,u){
+  var list=document.getElementById('hist-unit-list');
+  var key=mkey(bk,u);
+  var en=[];try{en=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  if(!en.length){list.innerHTML='<div class="hist-empty">No history yet for this unit.</div>';return;}
+  en.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  var frag=document.createDocumentFragment();
+  for(var i=0;i<en.length;i++){
+    var e=en[i];
+    var div=document.createElement('div');div.className='mem-entry';
+    var top=document.createElement('div');top.className='mem-top';
+    var nm=document.createElement('span');nm.className='mem-name';nm.textContent=(e.beds||'-')+' - floor '+(e.floor||'-');
+    var right=document.createElement('span');right.style.cssText='display:flex;align-items:center;gap:6px;';
+    var pr=document.createElement('span');pr.className='mem-price';pr.textContent='$'+Number(e.finalRent||e.asking).toLocaleString()+'/mo';
+    var btn=document.createElement('button');btn.className='mem-del';btn.textContent='x';
+    btn.setAttribute('data-key',key);btn.setAttribute('data-idx',i);
+    btn.onclick=function(){delUH(this.getAttribute('data-key'),parseInt(this.getAttribute('data-idx')));};
+    right.appendChild(pr);right.appendChild(btn);
+    top.appendChild(nm);top.appendChild(right);
+    var meta=document.createElement('div');meta.className='mem-meta';
+    meta.textContent='Asked $'+Number(e.asking).toLocaleString()+' - '+(e.days||'?')+' days - '+(e.date||'-')+(e.notes?' - '+e.notes:'');
+    div.appendChild(top);div.appendChild(meta);frag.appendChild(div);
+  }
+  list.innerHTML='';list.appendChild(frag);
+}
+
+function delUH(key,idx){
+  var e=[];try{e=JSON.parse(localStorage.getItem(key)||'[]');}catch(err){}
+  e.splice(idx,1);localStorage.setItem(key,JSON.stringify(e));
+  loadUHist(_bk,document.getElementById('sel-unit').value.trim());
+}
+
+function openSave(){document.getElementById('save-form').className='save-form open';document.getElementById('save-open-btn').style.display='none';}
+function closeSave(){document.getElementById('save-form').className='save-form';document.getElementById('save-open-btn').style.display='inline-block';}
+
+function confirmSave(){
+  var bk=_bk;var u=document.getElementById('sel-unit').value.trim();
+  if(!bk||!u||!_p)return;
+  var fr=parseFloat(document.getElementById('sf-final').value);
+  var days=document.getElementById('sf-days').value.trim();
+  var notes=document.getElementById('sf-notes').value.trim();
+  var entry={bKey:bk,unit:u,bName:BN[bk]||bk,date:new Date().toLocaleDateString('en-CA',{month:'short',year:'numeric'}),beds:_u.beds==='studio'?'Studio':_u.beds+'-bed',floor:_u.floor,sqft:_u.sqft,asking:_p,finalRent:(!isNaN(fr)&&fr>0)?fr:_p,days:days||'?',notes:notes};
+  var key=mkey(bk,u);
+  var en=[];try{en=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  en.push(entry);localStorage.setItem(key,JSON.stringify(en));
+  closeSave();loadUHist(bk,u);
+  var btn=document.getElementById('save-open-btn');btn.textContent='Saved!';btn.style.background='var(--green)';btn.style.color='white';
+  setTimeout(function(){btn.textContent='Save this rental when signed';btn.style.background='';btn.style.color='';},3000);
+}
+
+
+function seedDemoHistory(){
+  // Always re-seed demo data so updates show
+  var demoKeys=['kc_arkay_101','kc_arkay_205','kc_fleetwood_101'];
+  demoKeys.forEach(function(k){localStorage.removeItem(k);});
+  var demos=[
+    {key:'kc_arkay_101',entries:[
+      {bKey:'arkay',unit:'101',bName:'Arkay',date:'Mar 2026',beds:'2-bed',floor:1,sqft:641,asking:2175,finalRent:2150,days:'18',notes:'Original kitchen and bath. Worn carpet — reduced $50. Clean unit otherwise.'},
+      {bKey:'arkay',unit:'101',bName:'Arkay',date:'Aug 2025',beds:'2-bed',floor:1,sqft:641,asking:2100,finalRent:2100,days:'11',notes:'Original condition throughout. Freshly painted before listing.'}
+    ]},
+    {key:'kc_arkay_205',entries:[
+      {bKey:'arkay',unit:'205',bName:'Arkay',date:'Jan 2026',beds:'1-bed',floor:2,sqft:520,asking:1850,finalRent:1825,days:'22',notes:'Damaged bathroom tiles, original kitchen. Reduced asking by $25 to reflect condition.'}
+    ]},
+    {key:'kc_fleetwood_101',entries:[
+      {bKey:'fleetwood',unit:'101',bName:'Fleetwood',date:'Apr 2026',beds:'2-bed',floor:1,sqft:614,asking:2200,finalRent:2200,days:'9',notes:'Recently renovated kitchen — new cabinets and countertops. Original bathroom. No carpet.'},
+      {bKey:'fleetwood',unit:'101',bName:'Fleetwood',date:'Sep 2025',beds:'2-bed',floor:1,sqft:614,asking:2100,finalRent:2075,days:'25',notes:'Original kitchen and bath. Carpet worn in bedroom — reduced $25. Repainted hallway.'}
+    ]}
+  ];
+  demos.forEach(function(d){
+    localStorage.setItem(d.key,JSON.stringify(d.entries));
+  });
+  if(typeof _bk !== 'undefined' && _bk && typeof loadUHist === 'function'){
+    var u=document.getElementById('sel-unit');
+    if(u&&u.value.trim())loadUHist(_bk,u.value.trim());
+  }
+}
+seedDemoHistory();
+document.addEventListener('DOMContentLoaded', function(){
+  if(typeof _bk !== 'undefined' && _bk && typeof _u !== 'undefined' && _u){
+    var u = document.getElementById('sel-unit');
+    if(u) loadUHist(_bk, u.value.trim());
+  }
+});
+
+</script>
+</body>
+</html>
