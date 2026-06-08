@@ -556,7 +556,9 @@ async function fetchCheatSheet(){
         messages:[{role:'user',content:userPrompt}]
       })
     });
-    var data=await resp.json();
+    var rawText=await resp.text();
+    console.log('Raw worker response:', rawText.substring(0,500));
+    var data=JSON.parse(rawText);
     clearInterval(dotsInt);
     console.log('Full API response:', JSON.stringify(data).substring(0,500));
     console.log('API response stop_reason:', data.stop_reason);
