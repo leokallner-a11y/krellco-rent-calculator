@@ -597,7 +597,7 @@ function renderCheatSheet(data, loVal, hiVal, mr){
       +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.sqft+'</td>'
       +'<td style="padding:7px 6px;"><span style="'+bstyle+'font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;">'+badge+'</span></td>'
       +'<td style="padding:7px 6px;font-size:11px;color:var(--muted);">'+l.notes+'</td>'
-      +'<td style="padding:7px 6px;"><a href="'+l.link+'" target="_blank" style="color:#10a37f;font-size:11px;text-decoration:none;font-weight:600;">'+l.source+' &#8599;</a></td>'
+
       +'</tr>';
   }).join('');
   var table='<table style="width:100%;border-collapse:collapse;">'
@@ -607,8 +607,8 @@ function renderCheatSheet(data, loVal, hiVal, mr){
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Beds</th>'
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Sq ft</th>'
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">vs range</th>'
-    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Notes</th>'
-    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Link</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;min-width:200px;">Notes</th>'
+
     +'</tr></thead><tbody>'+rows+'</tbody></table>';
   document.getElementById('cs-table-wrap').innerHTML=table;
   var rents=listings.map(function(l){return l.rent;});
