@@ -378,12 +378,12 @@ function loadUnit(){
   var b=BLD[bk];
   var bn2=d.beds==='studio'?'0':d.beds;
   var cla=b.cl.split('+').join(' ');
-  document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bn2;
+  document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bn2+'&max_bedrooms='+bn2;
   var lvBeds=d.beds==='studio'?'studio':d.beds+'-bedroom';
-  document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv+'/'+lvBeds;
+  document.getElementById('lv-link').href='https://liv.rent/rental-listings/canada/british-columbia/'+b.lv+'/?beds='+(_u.beds==='studio'?'0':_u.beds);
   var fbCity=(_bk==='kincaid')?'burnaby':(_bk==='marilyn1'||_bk==='marilyn2'||_bk==='marilyn3'||_bk==='coronation'||_bk==='marob')?'new-westminster':'vancouver';
   var FBB={studio:'studio-apartments','1':'1-bedroom-apartments','2':'2-bedroom-apartments','3':'3-bedroom-apartments'};
-  document.getElementById('fb-link').href='https://www.facebook.com/marketplace/'+fbCity+'/'+(FBB[d.beds]||'apartments-for-rent')+'/?location='+encodeURIComponent(b.addr)+'&radius=2';
+  document.getElementById('fb-link').href='https://www.facebook.com/marketplace/'+fbCity+'/propertyrentals/?minBeds='+(d.beds==='studio'?'0':d.beds)+'&maxBeds='+(d.beds==='studio'?'0':d.beds)+'&propertyType=apartment';
   window._fbAddr=b.area;
   setT('k',d.k?'yes':'no');
   setT('b',d.ba?'yes':'no');
@@ -464,9 +464,9 @@ function updateLinks(){
   var lo=parseInt(document.getElementById('mkt-low').value)||0;
   var hi=parseInt(document.getElementById('mkt-high').value)||0;
   var clPrice=lo>0?'&min_price='+lo+(hi>0?'&max_price='+hi:''):'';
-  document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bedsNum+clPrice;
+  document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bedsNum+'&max_bedrooms='+bedsNum+clPrice;
   var lvBeds=beds==='studio'?'studio':beds+'-bedroom';
-  document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv+'/'+lvBeds;
+  document.getElementById('lv-link').href='https://liv.rent/rental-listings/canada/british-columbia/'+b.lv+'/?beds='+(_u.beds==='studio'?'0':_u.beds);
 }
 
 function showMid(){
