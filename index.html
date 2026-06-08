@@ -99,7 +99,6 @@ select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white
 .slink-hint{flex:1;font-size:10px;color:var(--muted);font-weight:400;}
 .slink-arr{color:var(--mid);font-size:13px;}
 .cl{border-left:3px solid #cc4400;}
-.kj{border-left:3px solid #3a3a9a;}
 .fb{border-left:3px solid #1877f2;}
 .lv{border-left:3px solid #e84040;}
 
@@ -197,7 +196,6 @@ select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white
     <div class="divider"></div>
     <div class="panel-label">Browse live listings</div>
     <a id="cl-link" href="#" target="_blank" class="slink cl"><span>&#128269;</span><span class="slink-name">Craigslist</span><span class="slink-hint">Neighbourhood, beds & price pre-set · Nothing extra needed</span><span class="slink-arr">&#8599;</span></a>
-    <a id="kj-link" href="#" target="_blank" class="slink kj"><span>&#128269;</span><span class="slink-name">Kijiji</span><span class="slink-hint">Set Category = Long Term Rentals, neighbourhood, beds & price manually</span><span class="slink-arr">&#8599;</span></a>
     <a id="lv-link" href="#" target="_blank" class="slink lv"><span>&#128269;</span><span class="slink-name">liv.rent</span><span class="slink-hint">Neighbourhood & beds pre-set · Set price range manually</span><span class="slink-arr">&#8599;</span></a>
     <a id="fb-link" href="https://www.facebook.com/marketplace/vancouver/propertiesrentals" target="_blank" class="slink fb"><span>&#128269;</span><span class="slink-name">Marketplace</span><span class="slink-hint">Set location to neighbourhood, reduce radius & set price manually</span><span class="slink-arr">&#8599;</span></a>
   </div>
@@ -260,7 +258,7 @@ select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white
       <div class="card-body" style="padding:8px;">
         <div id="cs-idle">
           <button onclick="fetchCheatSheet()" style="width:100%;background:#10a37f;color:white;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#128269; Fetch live listings</button>
-          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:6px;">Searches Craigslist, Kijiji & liv.rent &middot; Real listings &middot; Direct links &middot; ~15 seconds</div>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:6px;">Searches Craigslist, liv.rent & Marketplace &middot; Real listings &middot; Direct links &middot; ~15 seconds</div>
         </div>
         <div id="cs-loading" style="display:none;text-align:center;padding:20px 0;">
           <div style="font-size:13px;color:var(--muted);">Searching for comparable listings<span id="cs-dots">...</span></div>
@@ -556,7 +554,7 @@ async function fetchCheatSheet(){
 
   var systemPrompt='You are a rental market research assistant for a Vancouver property manager. Use your web search tool to find REAL, CURRENTLY ACTIVE rental listings. Return ONLY a JSON object with no markdown, no explanation. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"710","notes":"...","link":"...","source":"craigslist"}],"fetched_at":"June 2026"}. For link use the actual direct listing URL. For sqft use string or "--". Include 3-6 listings. Only older purpose-built apartments -- no basement suites, no new luxury condos, no shared housing.';
 
-  var userPrompt='Find current '+bedsLabel+' apartment rentals in '+area+' priced '+priceFilter+'. Search Craigslist Vancouver, Kijiji, and liv.rent. Return only currently active listings with direct listing URLs.';
+  var userPrompt='Find current '+bedsLabel+' apartment rentals in '+area+', Vancouver priced '+priceFilter+'. Search Craigslist Vancouver and liv.rent. Only include currently active listings with direct listing URLs. Focus on older purpose-built apartment buildings only.';
 
   try{
     var resp=await fetch(WORKER_URL,{
@@ -653,7 +651,7 @@ function buildCSPrompt(){
   var prompt='I am a property manager pricing a '+bedsLabel+' apartment at '+bName+', '+b.addr+' in '+area+'.'+NL+NL
     +'Please search the web RIGHT NOW and find current '+bedsLabel+' rental listings in '+area+' priced '+priceFilter+'.'+NL
     +'(Price range: '+priceFilter+' — based on '+(loVal&&hiVal?'your entered range':'built-in market data for this neighbourhood')+')'+NL+NL
-    +'Search Craigslist Vancouver, Kijiji Vancouver, Rentals.ca, and liv.rent. Only include CURRENTLY ACTIVE listings.'+NL+NL
+    +'Search Craigslist Vancouver and liv.rent. Only include CURRENTLY ACTIVE listings.'+NL+NL
     +'YOUR RESPONSE MUST INCLUDE A FORMATTED TABLE. Do not skip the table even if listings are limited.'+NL
     +'Table columns: Address | Rent ($/mo) | Beds | Sq Ft | Notes'+NL
     +'For Notes: always include renovation status (original / partly updated / fully renovated), parking, laundry, floor if known.'+NL
