@@ -552,7 +552,7 @@ async function fetchCheatSheet(){
   var dotsEl=document.getElementById('cs-dots');
   var dotsInt=setInterval(function(){dotsEl.textContent=dotsEl.textContent.length>=3?'':dotsEl.textContent+'.';},500);
 
-  var systemPrompt='You are a rental market research assistant for a Vancouver property manager. Use your web search tool to find REAL, CURRENTLY ACTIVE rental listings. Return ONLY a JSON object with no markdown, no explanation. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"710","notes":"...","link":"...","source":"craigslist"}],"fetched_at":"June 2026"}. For link use the actual direct listing URL. For sqft use string or "--". Include 3-6 listings. Only older purpose-built apartments -- no basement suites, no new luxury condos, no shared housing.';
+  var systemPrompt='You are a rental market research assistant. CRITICAL: You MUST respond with ONLY a valid JSON object. No apologies, no explanations, no markdown. Even if you find zero listings, return: {"listings":[],"fetched_at":"June 2026"}. Search the web and return this exact shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"710","notes":"original condition, shared laundry","link":"https://...","source":"craigslist"}],"fetched_at":"June 2026"}. Direct listing URLs only. 3-6 listings max. Older purpose-built apartments only.';
 
   var userPrompt='Find current '+bedsLabel+' apartment rentals in '+area+', Vancouver priced '+priceFilter+'. Search Craigslist Vancouver and liv.rent. Only include currently active listings with direct listing URLs. Focus on older purpose-built apartment buildings only.';
 
