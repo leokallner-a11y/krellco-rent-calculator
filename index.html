@@ -544,9 +544,9 @@ async function fetchCheatSheet(){
   var dotsEl=document.getElementById('cs-dots');
   var dotsInt=setInterval(function(){dotsEl.textContent=dotsEl.textContent.length>=3?'':dotsEl.textContent+'.';},500);
 
-  var systemPrompt='You are a rental market research assistant. CRITICAL: You MUST respond with ONLY a valid JSON object. No apologies, no explanations, no markdown. Even if you find zero listings, return: {"listings":[],"fetched_at":"June 2026"}. Search the web and return this exact shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"710","notes":"original condition, shared laundry","link":"https://...","source":"craigslist"}],"fetched_at":"June 2026"}. Direct listing URLs only. 3-6 listings max. Older purpose-built apartments only.';
+  var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number.';
 
-  var userPrompt='Find current '+bedsLabel+' apartment rentals in '+area+', Vancouver priced '+priceFilter+'. Search Craigslist Vancouver and liv.rent. Only include currently active listings with direct listing URLs. Focus on older purpose-built apartment buildings only.';
+  var userPrompt='Search Craigslist Vancouver for current '+bedsLabel+' rentals in '+area+' priced '+priceFilter+'. Return max 4 active listings as JSON.';
 
   try{
     var resp=await fetch(WORKER_URL,{
