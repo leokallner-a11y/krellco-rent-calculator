@@ -561,7 +561,24 @@ async function fetchCheatSheet(){
     clearInterval(dotsInt);
     var text=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
     var clean=text.replace(/```json|```/g,'').trim();
-    var parsed=JSON.parse(clean);
+    // Try to extract JSON even if truncated
+    var parsed;
+    try{
+      parsed=JSON.parse(clean);
+    }catch(e){
+      // Try to find and fix truncated JSON
+      var start=clean.indexOf('{"listings"');
+      if(start===-1)start=clean.indexOf('{');
+      if(start>=0){
+        var partial=clean.substring(start);
+        // Close any open arrays/objects
+        var opens=(partial.match(/\[/g)||[]).length-(partial.match(/\]/g)||[]).length;
+        var openObj=(partial.match(/\{/g)||[]).length-(partial.match(/\}/g)||[]).length;
+        for(var i=0;i<opens;i++)partial+=']';
+        for(var j=0;j<openObj;j++)partial+='}';
+        try{parsed=JSON.parse(partial);}catch(e2){throw new Error('Could not parse response');}
+      }else{throw new Error('No JSON found in response');}
+    }
     renderCheatSheet(parsed, loVal, hiVal, b.mr[_u.beds]||b.mr['1']);
   }catch(e){
     clearInterval(dotsInt);
