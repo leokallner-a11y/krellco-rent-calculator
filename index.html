@@ -379,16 +379,11 @@ function loadUnit(){
   var bn2=d.beds==='studio'?'0':d.beds;
   var cla=b.cl.split('+').join(' ');
   document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bn2;
-  var kjSlug=d.beds==='studio'?'bachelor':d.beds+'+bedroom';
-  var kjAttr=d.beds==='1'?'a27949001':d.beds==='2'?'a29276001':d.beds==='3'?'a29276002':'';
-  document.getElementById('kj-link').href='https://www.kijiji.ca/b-apartments-condos/'+b.kc+'/'+kjSlug+'/c37l'+b.ki+(kjAttr?kjAttr:'');
   var lvBeds=d.beds==='studio'?'studio':d.beds+'-bedroom';
   document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv+'/'+lvBeds;
   var fbCity=(_bk==='kincaid')?'burnaby':(_bk==='marilyn1'||_bk==='marilyn2'||_bk==='marilyn3'||_bk==='coronation'||_bk==='marob')?'new-westminster':'vancouver';
   var FBB={studio:'studio-apartments','1':'1-bedroom-apartments','2':'2-bedroom-apartments','3':'3-bedroom-apartments'};
   document.getElementById('fb-link').href='https://www.facebook.com/marketplace/'+fbCity+'/'+(FBB[d.beds]||'apartments-for-rent')+'/?location='+encodeURIComponent(b.addr)+'&radius=2';
-  document.getElementById('fb-addr-text').textContent=b.area;
-  document.getElementById('fb-addr-row').style.display='flex';
   window._fbAddr=b.area;
   setT('k',d.k?'yes':'no');
   setT('b',d.ba?'yes':'no');
@@ -470,9 +465,6 @@ function updateLinks(){
   var hi=parseInt(document.getElementById('mkt-high').value)||0;
   var clPrice=lo>0?'&min_price='+lo+(hi>0?'&max_price='+hi:''):'';
   document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bedsNum+clPrice;
-  var kjSlug2=beds==='studio'?'bachelor':beds+'+bedroom';
-  var kjAttr2=beds==='1'?'a27949001':beds==='2'?'a29276001':beds==='3'?'a29276002':'';
-  document.getElementById('kj-link').href='https://www.kijiji.ca/b-apartments-condos/'+b.kc+'/'+kjSlug2+'/c37l'+b.ki+(kjAttr2?kjAttr2:'');
   var lvBeds=beds==='studio'?'studio':beds+'-bedroom';
   document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv+'/'+lvBeds;
 }
@@ -575,7 +567,7 @@ async function fetchCheatSheet(){
     clearInterval(dotsInt);
     document.getElementById('cs-loading').style.display='none';
     document.getElementById('cs-error').style.display='block';
-    document.getElementById('cs-error').textContent='Could not fetch listings — try again or use the ChatGPT prompt below. ('+e.message+')';
+    document.getElementById('cs-error').textContent='Could not fetch listings — try again. The AI sometimes needs a second attempt. ('+e.message+')';
     document.getElementById('cs-idle').style.display='block';
   }
 }
@@ -591,6 +583,8 @@ function renderCheatSheet(data, loVal, hiVal, mr){
   }
   var lo=parseFloat(loVal)||mr[0];
   var hi=parseFloat(hiVal)||mr[1];
+  listings=listings.filter(function(l){return l&&typeof l.rent==='number'&&!isNaN(l.rent);});
+  if(!listings.length){document.getElementById('cs-error').style.display='block';document.getElementById('cs-error').textContent='No valid listings returned — try again.';document.getElementById('cs-idle').style.display='block';return;}
   var rows=listings.map(function(l){
     var badge,bstyle;
     if(l.rent<lo){badge='Below range';bstyle='background:#0d3d5e;color:#7ec8e3;';}
