@@ -380,7 +380,7 @@ function loadUnit(){
   var cla=b.cl.split('+').join(' ');
   document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bn2+'&max_bedrooms='+bn2;
   var lvBeds=d.beds==='studio'?'studio':d.beds+'-bedroom';
-  document.getElementById('lv-link').href='https://liv.rent/rental-listings/canada/british-columbia/'+b.lv+'/?beds='+(_u.beds==='studio'?'0':_u.beds);
+  document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv;
   var fbCity=(_bk==='kincaid')?'burnaby':(_bk==='marilyn1'||_bk==='marilyn2'||_bk==='marilyn3'||_bk==='coronation'||_bk==='marob')?'new-westminster':'vancouver';
   var FBB={studio:'studio-apartments','1':'1-bedroom-apartments','2':'2-bedroom-apartments','3':'3-bedroom-apartments'};
   document.getElementById('fb-link').href='https://www.facebook.com/marketplace/'+fbCity+'/propertyrentals/?minBeds='+(d.beds==='studio'?'0':d.beds)+'&maxBeds='+(d.beds==='studio'?'0':d.beds)+'&propertyType=apartment';
@@ -466,7 +466,7 @@ function updateLinks(){
   var clPrice=lo>0?'&min_price='+lo+(hi>0?'&max_price='+hi:''):'';
   document.getElementById('cl-link').href='https://vancouver.craigslist.org/search/van/apa?query='+cla+'&bedrooms='+bedsNum+'&max_bedrooms='+bedsNum+clPrice;
   var lvBeds=beds==='studio'?'studio':beds+'-bedroom';
-  document.getElementById('lv-link').href='https://liv.rent/rental-listings/canada/british-columbia/'+b.lv+'/?beds='+(_u.beds==='studio'?'0':_u.beds);
+  document.getElementById('lv-link').href='https://liv.rent/rental-listings/city/'+b.lv;
 }
 
 function showMid(){
