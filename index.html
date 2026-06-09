@@ -644,7 +644,7 @@ function renderCheatSheet(data, loVal, hiVal, mr){
   var mlo=Math.min.apply(null,rents);
   var mhi=Math.max.apply(null,rents);
   var avg=Math.round(rents.reduce(function(a,b){return a+b;},0)/rents.length);
-  document.getElementById('cs-stats').innerHTML=[
+  if(listings.length>1)document.getElementById('cs-stats').innerHTML=[
     {label:'Market low',val:'$'+mlo.toLocaleString()},
     {label:'Market high',val:'$'+mhi.toLocaleString()},
     {label:'Average',val:'$'+avg.toLocaleString()}
