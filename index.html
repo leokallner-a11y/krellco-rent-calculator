@@ -543,9 +543,9 @@ async function fetchCheatSheet(){
   var dotsEl=document.getElementById('cs-dots');
   var dotsInt=setInterval(function(){dotsEl.textContent=dotsEl.textContent.length>=3?'':dotsEl.textContent+'.';},500);
 
-  var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number.';
+  var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number. For notes include ONLY: building type (e.g. low-rise apartment, walk-up), estimated building age or era (e.g. 1960s, older building), and parking if known. EXCLUDE all basement suites, laneway houses, condos, townhouses, houses — only older purpose-built rental apartment buildings.';
 
-  var userPrompt='Search Craigslist Vancouver for current '+bedsLabel+' rentals in '+area+' priced '+priceFilter+'. Return max 4 active listings as JSON.';
+  var userPrompt='Search Craigslist Vancouver for current '+bedsLabel+' rentals in '+area+' priced '+priceFilter+'. Only include older purpose-built rental apartment buildings — no basement suites, no condos, no houses, no laneway homes. Return max 4 active listings as JSON.';
 
   try{
     var resp=await fetch(WORKER_URL,{
@@ -624,7 +624,7 @@ function renderCheatSheet(data, loVal, hiVal, mr){
       +'<td style="padding:7px 6px;font-size:11px;font-weight:700;color:var(--char);">$'+l.rent.toLocaleString()+'</td>'
       +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.beds+'</td>'
       +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.sqft+'</td>'
-      +'<td style="padding:7px 6px;"><span style="'+bstyle+'font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;">'+badge+'</span></td>'
+
       +'<td style="padding:7px 6px;font-size:11px;color:var(--muted);">'+l.notes+'</td>'
 
       +'</tr>';
@@ -635,7 +635,7 @@ function renderCheatSheet(data, loVal, hiVal, mr){
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Rent</th>'
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Beds</th>'
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Sq ft</th>'
-    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">vs range</th>'
+    
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;min-width:200px;">Notes</th>'
 
     +'</tr></thead><tbody>'+rows+'</tbody></table>';
