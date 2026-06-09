@@ -545,7 +545,7 @@ async function fetchCheatSheet(){
 
   var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number. For notes include ONLY: building type (e.g. low-rise apartment, walk-up), estimated building age or era (e.g. 1960s, older building), and parking if known. EXCLUDE all basement suites, laneway houses, condos, townhouses, houses — only older purpose-built rental apartment buildings.';
 
-  var userPrompt='Search Craigslist Vancouver for current '+bedsLabel+' rentals in '+area+' priced '+priceFilter+'. Only include older purpose-built rental apartment buildings — no basement suites, no condos, no houses, no laneway homes. Return max 4 active listings as JSON.';
+  var userPrompt='Search Craigslist Vancouver for current '+bedsLabel+' rentals in '+area+' priced '+priceFilter+'. STRICT FILTER: Only include older purpose-built rental apartment buildings (mid-century low-rise or walk-up apartments). Exclude everything else — no basement suites, no laneway homes, no condos, no townhouses, no houses, no renovated luxury units. If you cannot find any qualifying listings, return an empty listings array. It is better to return 0 or 1 genuine comparables than to include non-comparable properties.';
 
   try{
     var resp=await fetch(WORKER_URL,{
