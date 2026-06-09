@@ -543,9 +543,9 @@ async function fetchCheatSheet(){
   var dotsEl=document.getElementById('cs-dots');
   var dotsInt=setInterval(function(){dotsEl.textContent=dotsEl.textContent.length>=3?'':dotsEl.textContent+'.';},500);
 
-  var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number. For notes include ONLY: building type (e.g. low-rise apartment, walk-up), estimated building age or era (e.g. 1960s, older building), and parking if known. EXCLUDE all basement suites, laneway houses, condos, townhouses, houses — only older purpose-built rental apartment buildings.';
+  var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"...","source":"Craigslist","link":"https://..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number. For notes include ONLY: building type (e.g. low-rise apartment, walk-up), estimated building age or era (e.g. 1960s, older building), and parking if known. For source use the platform name (Craigslist, liv.rent, or Rentals.ca). For link use the direct listing URL if available, otherwise use empty string. EXCLUDE all basement suites, laneway houses, condos, townhouses, houses — only older purpose-built rental apartment buildings.';
 
-  var userPrompt='Search Craigslist Vancouver for current '+bedsLabel+' rentals in '+area+' priced '+priceFilter+'. STRICT FILTER: Only include older purpose-built rental apartment buildings (mid-century low-rise or walk-up apartments). Exclude everything else — no basement suites, no laneway homes, no condos, no townhouses, no houses, no renovated luxury units. If you cannot find any qualifying listings, return an empty listings array. It is better to return 0 or 1 genuine comparables than to include non-comparable properties.';
+  var userPrompt='Search Craigslist Vancouver, liv.rent, and Rentals.ca for current '+bedsLabel+' rentals in '+area+', Vancouver priced '+priceFilter+'. STRICT FILTER: Only include older purpose-built rental apartment buildings (mid-century low-rise or walk-up apartments, typically built before 1990). Exclude everything else — no basement suites, no laneway homes, no condos, no townhouses, no houses, no newly built buildings, no luxury renovated units. If you cannot find any qualifying listings, return an empty listings array. It is better to return 0 or 1 genuine comparables than to include non-comparable properties.';
 
   try{
     var resp=await fetch(WORKER_URL,{
@@ -637,6 +637,7 @@ function renderCheatSheet(data, loVal, hiVal, mr){
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Sq ft</th>'
     
     +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;min-width:200px;">Notes</th>'
+    +'<th style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:0.4px;">Source</th>'
 
     +'</tr></thead><tbody>'+rows+'</tbody></table>';
   document.getElementById('cs-table-wrap').innerHTML=table;
