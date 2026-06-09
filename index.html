@@ -149,12 +149,15 @@ select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white
 (function(){
   var entered = sessionStorage.getItem('kc_auth');
   if(entered !== 'ok'){
+    document.body.style.display='none';
     var pwd = prompt('Enter password to access KrellCo Rent Pricing:');
     if(pwd !== 'Schmulie123'){
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:DM Sans,sans-serif;color:#6b7c93;font-size:14px;">Incorrect password. Please refresh to try again.</div>';
+      document.body.style.display='';
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:DM Sans,sans-serif;color:#6b7c93;font-size:14px;">Access denied. Please refresh to try again.</div>';
       return;
     }
     sessionStorage.setItem('kc_auth','ok');
+    document.body.style.display='';
   }
 })();
 </script>
