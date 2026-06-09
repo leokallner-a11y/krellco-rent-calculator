@@ -626,7 +626,7 @@ function renderCheatSheet(data, loVal, hiVal, mr){
       +'<td style="padding:7px 6px;font-size:11px;color:var(--char);">'+l.sqft+'</td>'
 
       +'<td style="padding:7px 6px;font-size:11px;color:var(--muted);">'+l.notes+'</td>'
-
+      +(l.link?'<td style="padding:7px 6px;font-size:11px;"><a href="'+l.link+'" target="_blank" style="color:#10a37f;font-weight:600;text-decoration:none;">'+(l.source||'View')+' &#8599;</a></td>':'<td style="padding:7px 6px;font-size:11px;color:var(--muted);">'+(l.source||'Craigslist')+'</td>')
       +'</tr>';
   }).join('');
   var table='<table style="width:100%;border-collapse:collapse;">'
