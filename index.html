@@ -148,17 +148,19 @@ select:focus,input:focus,textarea:focus{border-color:var(--mid);background:white
 <script>
 (function(){
   var entered = sessionStorage.getItem('kc_auth');
-  if(entered !== 'ok'){
-    document.body.style.display='none';
-    var pwd = prompt('Enter password to access KrellCo Rent Pricing:');
-    if(pwd !== 'Schmulie123'){
-      document.body.style.display='';
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:DM Sans,sans-serif;color:#6b7c93;font-size:14px;">Access denied. Please refresh to try again.</div>';
-      return;
-    }
-    sessionStorage.setItem('kc_auth','ok');
-    document.body.style.display='';
+  if(entered === 'ok') return;
+  document.body.style.display='none';
+  function block(){
+    document.body.style.display='block';
+    document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:DM Sans,sans-serif;gap:16px;"><div style="font-size:14px;color:#6b7c93;">Access denied.</div><button onclick="location.reload()" style="padding:8px 20px;background:#1a4f8a;color:white;border:none;border-radius:6px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">Try again</button></div>';
   }
+  var pwd = prompt('Enter password to access KrellCo Rent Pricing:');
+  if(pwd === null || pwd !== 'Schmulie123'){
+    block();
+    return;
+  }
+  sessionStorage.setItem('kc_auth','ok');
+  document.body.style.display='';
 })();
 </script>
 
@@ -562,7 +564,7 @@ async function fetchCheatSheet(){
 
   var systemPrompt='Return ONLY a JSON object. No text before or after. Shape: {"listings":[{"address":"...","rent":2500,"beds":"2BR","sqft":"700","notes":"...","source":"Craigslist","link":"https://..."}],"fetched_at":"June 2026"}. Max 4 listings. rent is a number. For notes include: renovation status (e.g. recently renovated, original condition, older building), building year if stated (e.g. built 1965), and any key features (parking, laundry). This helps the property manager know if the listing is truly comparable to their older unrenovated stock. For source use the platform name (Craigslist, liv.rent, or Rentals.ca). For link use empty string. EXCLUDE all basement suites, laneway houses, condos, townhouses, houses — only purpose-built rental apartment buildings.';
 
-  var userPrompt='Search Craigslist Vancouver, liv.rent, and Rentals.ca for current '+bedsLabel+' rentals in '+area+', Vancouver priced '+priceFilter+'. STRICT FILTER: Only include purpose-built rental apartment buildings (low-rise or walk-up apartments). Exclude: basement suites, laneway homes, condos, townhouses, houses, luxury new builds. It is better to return 1 genuine comparable than 4 irrelevant ones.';
+  var userPrompt='Search Craigslist Vancouver, liv.rent, and Rentals.ca for current '+bedsLabel+' rentals in '+area+', Vancouver priced '+priceFilter+'. Include apartment listings — low-rise, walk-up, or mid-rise buildings. Exclude only: basement suites, laneway homes, single-family houses, and townhouses. Return up to 6 listings. In the notes mention if it appears to be a newer condo, recently renovated, or older building so the property manager can judge comparability themselves.';
 
   try{
     var resp=await fetch(WORKER_URL,{
